@@ -12,7 +12,7 @@
 ## 快速安裝
 
 ```bash
-git clone https://github.com/bagfen/claude-code-skills.git ~/Projects/claude-code-skills
+git clone https://github.com/baffen227/claude-code-skills.git ~/Projects/claude-code-skills
 cd ~/Projects/claude-code-skills
 ./setup.sh
 ```
