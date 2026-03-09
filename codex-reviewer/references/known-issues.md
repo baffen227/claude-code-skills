@@ -30,13 +30,13 @@ Always wrap codex commands with:
 
 1. **`timeout`** — prevent runaway execution, differentiated by command type:
    - `codex review`：`timeout 60`（review 通常 10-30 秒完成）
-   - `codex exec`：`timeout 180`（文件審查需讀取多檔案）
+   - `codex exec`：`timeout 240`（文件審查需讀取多檔案與 web search）
 2. **`ulimit -u 256`** — cap child process count as OOM safety net
 
 ```bash
 # Safe patterns
 timeout 60 codex review --uncommitted
-timeout 180 codex exec -s read-only "Review these files..."
+timeout 240 codex exec -s read-only "Review these files..."
 ```
 
 ## Incident Reference
