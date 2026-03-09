@@ -21,20 +21,41 @@ description: Review code and documents using OpenAI Codex CLI. Use when user ask
 - 執行 `git commit` 之前
 - 修改 `CLAUDE.md` 或任何 `SKILL.md` 之後
 
-## 2. 安全護欄
+## 2. 前置檢查：確保 Codex CLI 為最新版本
+
+每次執行審查前，先確認 Codex CLI 為最新版本：
+
+```bash
+codex --version
+```
+
+若非最新版本，執行更新：
+
+```bash
+sudo npm i -g @openai/codex@latest
+```
+
+更新後重新確認版本，再繼續後續流程。
+
+---
+
+## 3. 安全護欄
 
 **所有 codex 指令必須遵守以下規則。違反任何一條都可能導致系統 OOM。**
 
-### 2.1 必須使用 timeout 包裝
+### 3.1 必須使用 timeout 包裝
 
-所有 `codex` 指令前綴 `timeout 120`（120 秒上限）：
+依指令類型使用不同的 timeout 上限：
+
+- **`codex review`**：`timeout 60`（60 秒，review 通常 10-30 秒內完成）
+- **`codex exec`**：`timeout 180`（180 秒，文件審查需讀取多檔案與交叉比對）
 
 ```bash
-timeout 120 codex review --uncommitted "prompt"
-timeout 120 codex exec ...
+timeout 60 codex review --uncommitted
+timeout 180 codex exec -s read-only ...
 ```
 
-### 2.2 禁止透過 stdin 傳遞 prompt
+### 3.2 禁止透過 stdin 傳遞 prompt
 
 `codex review` **不支援** stdin 輸入。以下用法會導致 fork bomb：
 
@@ -46,11 +67,11 @@ codex review --uncommitted "$(cat very-long-prompt.md)"
 
 正確做法：將 prompt 精簡為一行內的關鍵指示，直接作為位置引數傳入。
 
-### 2.3 `--uncommitted` / `--base` 不接受自訂 prompt
+### 3.3 `--uncommitted` / `--base` 不接受自訂 prompt
 
 codex-cli 0.112.0 的 `codex review` 在搭配 `--uncommitted` 或 `--base` 時**不允許**位置引數 `[PROMPT]`。`references/code-review-prompt.md` 的完整內容僅供 Claude 理解審查維度，用於在 codex review 完成後補充分析，**不得**傳給 codex CLI。
 
-### 2.4 零輸出監控
+### 3.4 零輸出監控
 
 若 codex 指令在 **30 秒內無任何 stdout 輸出**，視為異常，立即終止。不要等待 timeout 到期。
 
@@ -58,7 +79,7 @@ codex-cli 0.112.0 的 `codex review` 在搭配 `--uncommitted` 或 `--base` 時*
 
 ---
 
-## 3. 審查範圍偵測
+## 4. 審查範圍偵測
 
 執行以下檢查以決定審查模式：
 
@@ -71,36 +92,36 @@ git diff --cached --stat
 - 若變更包含 `docs/plans/*.md`、`CLAUDE.md`、`**/SKILL.md`，或使用者指定了特定文件 → 標記為 **doc review**
 - 若兩者皆有 → **mixed mode**，依序執行程式碼審查與文件審查
 
-## 4. 程式碼審查流程
+## 5. 程式碼審查流程
 
-針對 git 變更，執行 `codex review`。**必須遵守第 2 節的安全護欄。**
+針對 git 變更，執行 `codex review`。**必須遵守第 3 節的安全護欄。**
 
 先閱讀 `references/code-review-prompt.md` 理解完整審查維度。注意：`codex review` 在搭配 `--uncommitted` 或 `--base` 時**不允許**自訂 prompt（CLI 限制），只能使用 codex 內建的 review 邏輯。
 
 **審查未提交的變更：**
 
 ```bash
-timeout 120 codex review --uncommitted > /tmp/codex-code-review.txt 2>&1
+timeout 60 codex review --uncommitted > /tmp/codex-code-review.txt 2>&1
 ```
 
 **審查相對於基礎分支的變更：**
 
 ```bash
-timeout 120 codex review --base main > /tmp/codex-code-review.txt 2>&1
+timeout 60 codex review --base main > /tmp/codex-code-review.txt 2>&1
 ```
 
 > **禁止**：`--uncommitted` 和 `--base` 不能與 `[PROMPT]` 位置引數同時使用。也不得透過 pipe/stdin 傳遞 prompt。詳見 `references/known-issues.md`。
 
 Codex 內建 review 已涵蓋安全性與程式碼品質檢查。review 完成後，Claude 應對照 `references/code-review-prompt.md` 的維度，**補充 codex 未涵蓋的審查面向**（如 CLAUDE.md 一致性、YAGNI 檢查）。
 
-## 5. 文件審查流程
+## 6. 文件審查流程
 
-針對文件審查，使用 `codex exec`。**必須遵守第 2 節的安全護欄。**
+針對文件審查，使用 `codex exec`。**必須遵守第 3 節的安全護欄。**
 
 先閱讀 `references/doc-review-prompt.md` 選擇對應文件類型的審查維度，然後濃縮為短 prompt。
 
 ```bash
-timeout 120 codex exec -s read-only \
+timeout 180 codex exec -s read-only \
   -o /tmp/codex-doc-review.txt \
   "Review the following files for: structural clarity, internal consistency, actionability, CLAUDE.md alignment. Files: [file list]. Output as markdown: 重點發現, 建議改善, 無問題確認."
 ```
@@ -111,7 +132,7 @@ timeout 120 codex exec -s read-only \
 
 若 codex 指令產出為空或執行失敗，由 Claude 自行根據 `references/doc-review-prompt.md` 的維度直接審查文件，不再重試 codex。
 
-## 6. 報告組裝
+## 7. 報告組裝
 
 執行 Python 腳本組裝結構化審查報告：
 
@@ -137,7 +158,7 @@ uv run ~/.claude/skills/codex-reviewer/scripts/run-codex-review.py \
 - **建議改善** — 可選的改進建議
 - **無問題確認** — 確認通過的項目
 
-## 7. 結果呈現
+## 8. 結果呈現
 
 報告產出後，向使用者呈現精簡摘要：
 

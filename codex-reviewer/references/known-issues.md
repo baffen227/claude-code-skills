@@ -28,12 +28,15 @@ codex review "Focus on security and YAGNI."
 
 Always wrap codex commands with:
 
-1. **`timeout`** — prevent runaway execution (max 120s recommended)
+1. **`timeout`** — prevent runaway execution, differentiated by command type:
+   - `codex review`：`timeout 60`（review 通常 10-30 秒完成）
+   - `codex exec`：`timeout 180`（文件審查需讀取多檔案）
 2. **`ulimit -u 256`** — cap child process count as OOM safety net
 
 ```bash
-# Safe pattern
-timeout 120 codex review --uncommitted "Short prompt here"
+# Safe patterns
+timeout 60 codex review --uncommitted
+timeout 180 codex exec -s read-only "Review these files..."
 ```
 
 ## Incident Reference
