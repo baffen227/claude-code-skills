@@ -1,17 +1,21 @@
 ---
 name: codex-reviewer
-description: Review code and documents using OpenAI Codex CLI. Use when user asks for review ("幫我 review", "請 Codex 檢查", "codex review"), or suggest (non-mandatory) after design docs are completed, before commits, or after modifying CLAUDE.md or skill files. Supports code review (git changes), document review (plans, CLAUDE.md, SKILL.md files), and mixed review.
+description: Review code and documents using OpenAI Codex CLI. Use when user asks for review ("幫我 review", "請 Codex 檢查", "codex review"), or suggest (non-mandatory) after design docs are completed, before commits, or after modifying CLAUDE.md or skill files. Supports code review (git changes), document review (plans, CLAUDE.md, SKILL.md files), mixed review, and consensus mode (iterative Claude-Codex discussion until agreement).
 ---
 
 # Codex Reviewer
 
-整合 OpenAI Codex CLI 對程式碼與文件進行審查，產出結構化審查報告。
+整合 OpenAI Codex CLI 對程式碼與文件進行審查，產出結構化審查報告。支援單次審查與共識評估模式（Claude-Codex 來回討論至達成共識）。
 
 ## 1. 觸發行為
 
 ### 主動觸發
 
 當使用者明確要求審查時立即執行（例如「幫我 review」、「請 Codex 檢查」、「codex review」）。
+
+### 共識模式觸發
+
+當使用者要求 Claude 與 Codex 來回討論至達成共識時進入共識模式（例如「評估 Codex 的建議」、「直到雙方達成共識」、「請 Codex 檢查，然後評估」）。共識模式在完成 Section 5-8 的審查後，接續執行 Section 9 的共識評估流程。
 
 ### 建議觸發（非強制）
 
@@ -166,6 +170,64 @@ uv run ~/.claude/skills/codex-reviewer/scripts/run-codex-review.py \
 2. 摘要重點發現（若有嚴重問題，明確標示）
 3. 提供報告完整路徑供使用者參閱
 4. 若有建議改善項目，詢問是否要逐項處理
+
+## 9. 共識評估模式
+
+當使用者觸發共識模式時，在 Section 5-8 產出 Codex 審查結果後，接續以下流程。
+
+### 9.1 逐項評估
+
+對 Codex 的每一項建議，Claude 必須獨立評估。禁止盲目接受或全盤拒絕。
+
+每項評估需考慮：
+
+- **專案上下文**: 建議是否符合當前專案的架構、慣例、已有決策？
+- **技術限制**: 是否有技術原因使建議不可行？（例如檔案被其他機制引用、破壞既有流程）
+- **成本/效益**: 改動的工程成本是否合理？是否 over-engineering？
+
+評估結論只有三種：**同意**、**不同意（附理由）**、**部分同意（說明調整）**。
+
+### 9.2 共識表輸出
+
+評估完成後，產出結構化共識表呈現給使用者：
+
+```markdown
+| # | Codex 建議 | Claude 判斷 | 理由 |
+|---|-----------|------------|------|
+| 1 | [建議摘要] | 同意 / 不同意 / 部分同意 | [簡述] |
+```
+
+使用者確認後，僅實作「同意」和「部分同意」的項目。
+
+### 9.3 實作與驗證 Loop
+
+1. Claude 實作同意的項目
+2. 執行 `codex review --uncommitted`（遵守 Section 3 安全護欄）驗證實作
+3. 若 Codex 驗證發現新問題 → Claude 評估並修正 → 回到步驟 2
+4. 若 Codex 驗證無新問題或僅剩低優先級備註 → 進入步驟 5
+5. 產出最終共識總結
+
+### 9.4 終止條件
+
+共識 Loop 在以下任一條件滿足時結束：
+
+- Codex 驗證 review 無新 issue
+- 剩餘 issue 全部為 P3 以下且 Claude 已處理或標註
+- Loop 已執行 **3 輪**（防止無限迴圈）— 第 3 輪後若仍有分歧，列出未解決項目交由使用者決定
+
+### 9.5 最終共識總結
+
+Loop 結束後，輸出完整共識總結：
+
+```markdown
+### Claude-Codex 共識總結
+
+| 建議項 | Codex 原始建議 | Claude 評估 | 最終決定 | 狀態 |
+|--------|---------------|------------|---------|------|
+| 1 | [摘要] | [同意/不同意] | [執行/不執行] | Done / Rejected |
+```
+
+---
 
 ## 附帶資源
 
