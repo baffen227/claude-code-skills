@@ -1,6 +1,6 @@
 ---
 name: tea-gitea
-description: Use when interacting with Gitea — posting comments, reading issues, listing PRs, creating issues, or any operation on the BTBU Gitea server. Triggers on "update Gitea", "post to issue", "Gitea issue", "gitea comment", "tea CLI".
+description: Use when interacting with Gitea — creating issues, editing PRs, posting comments, reading issue/PR details, or any operation on the BTBU Gitea server (FortuneElectric/nrg-prototype). Triggers on "Gitea issue", "建立 issue", "tea issues create", "tea pr", "edit PR", "更新 PR", "post comment", "gitea comment", "tea CLI". MUST invoke before any tea or Gitea API command to avoid known CLI quirks.
 ---
 
 # tea-gitea — Gitea Operations via tea CLI
@@ -25,16 +25,21 @@ All `tea` commands below assume `--login btbu-gitea --repo FortuneElectric/nrg-p
 | Read issue body | `tea api --login btbu-gitea "/repos/FortuneElectric/nrg-prototype/issues/{N}"` |
 | Read issue comments | `tea api --login btbu-gitea "/repos/FortuneElectric/nrg-prototype/issues/{N}/comments"` |
 | Post comment | `tea api --login btbu-gitea -X POST "/repos/FortuneElectric/nrg-prototype/issues/{N}/comments" -F "body=@/tmp/comment.md"` |
-| Create issue | `tea issues create --login btbu-gitea --repo FortuneElectric/nrg-prototype --title "..." --body "..."` |
+| Create issue | `tea issues create --login btbu-gitea --repo FortuneElectric/nrg-prototype --title "..." --description "..."` |
 | Search issues | `tea issues --login btbu-gitea --repo FortuneElectric/nrg-prototype --state open --output simple` |
 | List PRs | `tea pulls --login btbu-gitea --repo FortuneElectric/nrg-prototype` |
+| Edit PR title/body | REST API `PATCH /pulls/{N}` (see Recipes) |
 
 ## Critical Quirks (tea v0.12.0)
 
 1. **`tea comment` does NOT support `--body` flag**. Use `tea api -F` instead.
 2. **`tea api` does NOT support `--body`**. Use `-F "key=value"` for fields, `-F "key=@file"` to read from file.
 3. **`tea issues details` does NOT show issue body**. Use `tea api GET` to read full content.
-4. **JSON output**: Pipe `tea api` through `python3 -c "import json,sys; ..."` for parsing.
+4. **`tea issues create` uses `--description`, NOT `--body`**. `--body` flag does not exist and will error.
+5. **`tea pr edit` does NOT exist**. PR title/body edits require REST API `PATCH /pulls/{N}`.
+6. **`tea labels list` only shows repo-level labels**. Org-level labels return empty — infer from existing issues instead.
+7. **Token scope**: `write:issue` covers issues only. PR edits need `write:repository`.
+8. **JSON output**: Pipe `tea api` through `python3 -c "import json,sys; ..."` for parsing.
 
 ## Recipes
 
@@ -123,6 +128,29 @@ for c in comments:
 "
 ```
 
+### Edit PR Title / Body
+
+`tea pr edit` does not exist. Use REST API with `curl` (requires `write:repository` token scope):
+
+```bash
+# Update PR title
+curl -s -X PATCH \
+  -H "Authorization: token $(grep -A5 'btbu-gitea' ~/.config/tea/config.yml | grep token | head -1 | awk '{print $2}')" \
+  -H "Content-Type: application/json" \
+  -d '{"title": "New PR Title"}' \
+  "https://git.fortune-battery-systems-lab.com.tw/api/v1/repos/FortuneElectric/nrg-prototype/pulls/{N}"
+
+# Update PR body (use python to JSON-encode multiline content)
+BODY_JSON=$(python3 -c "import json; print(json.dumps(open('/tmp/pr_body.md').read()))")
+curl -s -X PATCH \
+  -H "Authorization: token $(grep -A5 'btbu-gitea' ~/.config/tea/config.yml | grep token | head -1 | awk '{print $2}')" \
+  -H "Content-Type: application/json" \
+  -d "{\"body\": $BODY_JSON}" \
+  "https://git.fortune-battery-systems-lab.com.tw/api/v1/repos/FortuneElectric/nrg-prototype/pulls/{N}"
+```
+
+**Verify**: Parse response for `number` and `title`.
+
 ### Read Issue Body
 
 ```bash
@@ -144,9 +172,13 @@ print(d['body'])
 |---------|-----|
 | `tea comment 1334 --body "..."` | Use `tea api -X POST -F "body=@file"` |
 | `tea api --body '{"body":"..."}'` | Use `-F "body=@file"` (no `--body` flag) |
+| `tea issues create --body "..."` | Use `--description "..."` (no `--body` flag) |
+| `tea pr edit 1331 --title "..."` | Use REST API `PATCH /pulls/{N}` (`tea pr edit` does not exist) |
 | Inline JSON in `-F` with newlines | Write to temp file first, use `@file` |
 | Forget `--login btbu-gitea` | Always include — no repo-local context |
 | Expect `tea issues details` to show body | Use `tea api GET` instead |
+| PR edit returns 403 / scope error | Token needs `write:repository`, not just `write:issue` |
+| `tea labels list` returns empty | Labels are org-level; infer from existing issues |
 
 ## Reference
 
