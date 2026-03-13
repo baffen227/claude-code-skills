@@ -8,6 +8,7 @@
 |-------|------|---------|
 | [uv-python-setup](./uv-python-setup/) | 在任何倉庫初始化 Python uv 開發環境 | 「初始化 Python 環境」、「設定 uv」、「setup python」 |
 | [codex-reviewer](./codex-reviewer/) | 整合 OpenAI Codex CLI 進行程式碼與文件審查 | 「幫我 review」、「請 Codex 檢查」、「codex review」 |
+| [tea-gitea](./tea-gitea/) | BTBU Gitea 操作 (issues, comments, PRs) via tea CLI | 「update Gitea」、「post to issue」、「gitea comment」 |
 
 ## 快速安裝
 
@@ -26,6 +27,7 @@ cd ~/Projects/claude-code-skills
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code)（CLI）
 - [uv](https://docs.astral.sh/uv/)（`codex-reviewer` 的報告組裝腳本需要）
 - [Codex CLI](https://github.com/openai/codex) v0.112.0+（僅 `codex-reviewer` 需要）
+- [tea](https://about.gitea.com/products/tea/) v0.12.0+（僅 `tea-gitea` 需要）
 
 ---
 
@@ -94,6 +96,34 @@ codex-reviewer/
 4. **零輸出監控** — 30 秒無輸出即視為異常終止
 
 詳細的事故分析與 CLI 限制記錄在 [`codex-reviewer/references/known-issues.md`](./codex-reviewer/references/known-issues.md)。
+
+---
+
+### tea-gitea
+
+透過 [tea CLI](https://about.gitea.com/products/tea/) 操作 BTBU Gitea server，編碼 `tea` v0.12.0 的 working patterns 與已知 quirks。
+
+**主要 Recipes：**
+
+| 操作 | 方式 |
+|------|------|
+| 發 comment | `tea api -X POST -F "body=@file"`（`tea comment` 不支援 `--body`） |
+| 讀 issue body | `tea api GET` + JSON parse（`tea issues details` 不顯示 body） |
+| 讀 comments | `tea api GET /issues/{N}/comments` + JSON parse |
+| ZH/EN comment pair | 寫入 temp file → 分別 POST（Issue #1334 慣例） |
+
+**已知 Quirks（tea v0.12.0）：**
+
+1. `tea comment` 沒有 `--body` flag — 必須用 `tea api -F`
+2. `tea api` 沒有 `--body` flag — 用 `-F "key=@file"` 讀檔
+3. `tea issues details` 不顯示 issue body — 用 `tea api GET`
+
+**檔案結構：**
+
+```
+tea-gitea/
+└── SKILL.md    # Recipes + quick reference + quirks
+```
 
 ---
 

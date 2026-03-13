@@ -13,7 +13,7 @@ SKILLS_DIR="$HOME/.claude/skills"
 
 mkdir -p "$SKILLS_DIR"
 
-SKILLS=(uv-python-setup codex-reviewer)
+SKILLS=(uv-python-setup codex-reviewer tea-gitea)
 
 for skill in "${SKILLS[@]}"; do
     source="$SCRIPT_DIR/$skill"
