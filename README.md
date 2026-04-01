@@ -22,6 +22,14 @@ cd ~/Projects/claude-code-skills
 
 安裝後即可在任何專案中透過 Claude Code 觸發這些 skills。
 
+## Plugins (第三方)
+
+| Plugin | 來源 | 用途 | 與自訂 skill 的關係 |
+|--------|------|------|-------------------|
+| [openai/codex-plugin-cc](https://github.com/openai/codex) | Claude Code marketplace | `/codex:rescue`, `/codex:setup` | 與 `codex-reviewer` 各自獨立，不衝突 |
+
+安裝: `claude plugin marketplace add openai/codex-plugin-cc && claude plugin install codex@openai-codex`
+
 ## 前置需求
 
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code)（CLI）
