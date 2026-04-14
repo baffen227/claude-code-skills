@@ -1,6 +1,6 @@
 # claude-code-skills
 
-個人的 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 全域 Skills 合集。每個 skill 部署在 `~/.claude/skills/`，跨倉庫使用。
+個人的 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 全域 Skills + Output Styles 合集。Skills 部署在 `~/.claude/skills/`，output styles 部署在 `~/.claude/output-styles/`，跨倉庫使用。
 
 ## Skills 一覽
 
@@ -9,6 +9,7 @@
 | [uv-python-setup](./uv-python-setup/) | 在任何倉庫初始化 Python uv 開發環境 | 「初始化 Python 環境」、「設定 uv」、「setup python」 |
 | [codex-reviewer](./codex-reviewer/) | 整合 OpenAI Codex CLI 進行程式碼與文件審查 | 「幫我 review」、「請 Codex 檢查」、「codex review」 |
 | [tea-gitea](./tea-gitea/) | BTBU Gitea 操作 (issues, comments, PRs) via tea CLI | 「update Gitea」、「post to issue」、「gitea comment」 |
+| [classical-chinese-rules](./classical-chinese-rules/) | 依思果《翻譯研究》對繁體中文 prose 做深度潤稿，對抗歐化中文 | 「校稿」、「修稿」、「潤稿」、「中文潤稿」、「改得更像中文」、「歐化」、「思果」 |
 
 ## 快速安裝
 
@@ -18,9 +19,9 @@ cd ~/Projects/claude-code-skills
 ./setup.sh
 ```
 
-`setup.sh` 會在 `~/.claude/skills/` 建立 symlink 指向此 repo 的各 skill 目錄。若已有同名目錄會自動備份為 `.bak`。
+`setup.sh` 會在 `~/.claude/skills/` 建立 symlink 指向此 repo 的各 skill 目錄，並在 `~/.claude/output-styles/` 建立 symlink 指向本 repo 管理的 output style 檔案。若已有同名目錄/檔案會自動備份為 `.bak`。
 
-安裝後即可在任何專案中透過 Claude Code 觸發這些 skills。
+安裝後 skills 即可在任何專案中透過 Claude Code 觸發，output styles 則需要在新 session 中用 `/config` → Output style 手動選擇啟用。
 
 ## Plugins (第三方)
 
@@ -104,6 +105,56 @@ codex-reviewer/
 4. **零輸出監控** — 30 秒無輸出即視為異常終止
 
 詳細的事故分析與 CLI 限制記錄在 [`codex-reviewer/references/known-issues.md`](./codex-reviewer/references/known-issues.md)。
+
+---
+
+### classical-chinese-rules
+
+對繁體中文 prose 做深度潤稿，以[思果](https://zh.wikipedia.org/zh-tw/%E8%94%A1%E6%BF%AF%E5%A0%82)《翻譯研究》為 canonical reference，對抗 English-trained LLM 常產生的歐化中文 / 翻譯腔。
+
+**兩層架構 (hot path + cold path)**
+
+這個 skill 是 cold path，需要搭配 hot path 使用才完整:
+
+| 層 | 位置 | 觸發 | 作用 |
+|----|------|------|------|
+| **Hot path** — Output Style | `~/.claude/output-styles/concise-tw.md` | 每 session 自動載入 system prompt (需先用 `/config` 啟用) | 14 條思果語法鐵律 + 8 類 anti-pattern (50+ 禁例)，always active，處理 80% 常見錯 |
+| **Cold path** — 本 skill | `~/.claude/skills/classical-chinese-rules/` | 使用者說「校稿」「潤稿」「歐化」等關鍵字，或手動 `/classical-chinese-rules` | 載入完整的 `Literature note of the book《翻譯研究》.md` (461 行)，處理 hot path 之外的深度規則 (十條「的」字細則、代名詞使用、節奏平仄) |
+
+**Single source of truth**: skill 內容不複製思果筆記，直接指向 Obsidian vault 的絕對路徑。使用者擴充 vault 筆記時，skill 自動跟著升級，不需改 `SKILL.md`。
+
+**⚠️ 使用提醒**
+
+1. **新 output style 必須開新 session 才生效**。切換 `Concise Traditional Chinese` output style 之後，Claude Code 在當前 session 仍是舊行為 — style 烙進 system prompt 於 session 啟動時，之後不會 hot-reload。`/config` 切換後要再開一個新 session。
+
+2. **深度校稿用關鍵字觸發 skill**。Hot path 已經永遠生效處理常見錯，需要深度潤稿 (十條「的」字細則、代名詞使用、節奏平仄) 時才 invoke 本 skill。Auto-trigger 關鍵字: 校稿 / 修稿 / 潤稿 / 中文潤稿 / 潤色 / 改得更像中文 / 翻譯得不像中文 / 歐化 / 思果 / 翻譯研究。
+
+**完整安裝 (hot path + cold path)**
+
+```bash
+# 1. 跑 setup.sh — 會同時 symlink skill 和 output style
+./setup.sh
+
+# 2. 啟動新的 Claude Code session
+# 3. /config → Output style → 選 Concise Traditional Chinese
+# 4. 再開一個新 session — output style 才真正生效
+```
+
+**⚠️ 新 output style 必須開新 session 才生效** — Claude Code 在 session 啟動時把 output style 烙進 system prompt，之後不會 hot-reload。`/config` 切換完後要再開一個 session 才會套用。
+
+**前置需求**
+
+- Claude Code (CLI)
+- 個人的 Obsidian vault 裡有對應的思果讀書筆記。預設路徑 (在 `SKILL.md` 裡寫死): `~/Projects/heptabase-export/obsidian-vault/Clippings/Literature note of the book《翻譯研究》.md`。若路徑不同需手動編輯 `SKILL.md`
+
+**檔案結構**
+
+```
+classical-chinese-rules/
+├── SKILL.md                          # 指向 vault 筆記的路由 + scope map + usage procedure
+└── output-styles/
+    └── concise-tw.md                 # Hot path — 每 session 自動載入 system prompt
+```
 
 ---
 
