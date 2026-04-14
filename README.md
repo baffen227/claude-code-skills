@@ -23,6 +23,58 @@ cd ~/Projects/claude-code-skills
 
 安裝後 skills 即可在任何專案中透過 Claude Code 觸發，output styles 則需要在新 session 中用 `/config` → Output style 手動選擇啟用。
 
+## 跨機器部署備忘 (手動步驟)
+
+`./setup.sh` **不會自動處理**下列兩件事。在新機器上首次部署或遷移時必須手動做，否則某些 skill 的功能會退化:
+
+### 1. 全域 `~/.claude/CLAUDE.md`
+
+本 repo 備有一份模板: [`global-claude-md-template.md`](./global-claude-md-template.md)。新機器上:
+
+```bash
+cp ~/Projects/claude-code-skills/global-claude-md-template.md ~/.claude/CLAUDE.md
+# 視機器情境編輯 (例如不同機器的 vault 路徑、不同的全域偏好)
+```
+
+這個檔案的作用是讓每個 Claude Code session 在啟動時就知道此機器上啟用了什麼 skill/style 組合、有哪些使用提醒。沒有它 Claude 不會主動提醒你「為什麼繁中回覆還是 AI 腔」這類設定問題。
+
+不納入 setup.sh 自動安裝的原因: 全域 CLAUDE.md 可能有機器特定的內容 (如硬體路徑、偏好的工具組合)，強制覆寫有風險。手動複製後再 HITL 編輯最安全。
+
+### 2. `classical-chinese-rules` skill 的 Obsidian vault 筆記
+
+此 skill 的 `SKILL.md` 寫死了一個絕對路徑:
+
+```
+~/Projects/heptabase-export/obsidian-vault/Clippings/Literature note of the book《翻譯研究》.md
+```
+
+新機器上需要:
+
+1. Clone `heptabase-export` repo (或等效 vault) 到 `~/Projects/heptabase-export/`
+2. 確認該路徑下有《翻譯研究》讀書筆記
+3. 若 vault 位置不同，手動編輯 `~/Projects/claude-code-skills/classical-chinese-rules/SKILL.md` 的路徑
+
+沒做這步的後果: skill 會被觸發但 Read tool 會失敗，Claude 會 fallback 到 hot path (output style) 的 14 條規則，深度潤稿功能不可用。
+
+### 部署檢查清單 (新機器一次性)
+
+```bash
+# 1. Clone repo + 跑 setup.sh
+git clone https://github.com/baffen227/claude-code-skills.git ~/Projects/claude-code-skills
+cd ~/Projects/claude-code-skills && ./setup.sh
+
+# 2. 複製全域 CLAUDE.md 模板
+cp global-claude-md-template.md ~/.claude/CLAUDE.md
+
+# 3. 確認 Obsidian vault 可達 (僅 classical-chinese-rules 需要)
+ls "$HOME/Projects/heptabase-export/obsidian-vault/Clippings/Literature note of the book《翻譯研究》.md"
+# 若不存在: clone heptabase-export 或編輯 SKILL.md 的路徑
+
+# 4. 啟動新 Claude Code session
+# 5. /config → Output style → Concise Traditional Chinese
+# 6. 再開一個新 session — output style 才真正生效
+```
+
 ## Plugins (第三方)
 
 | Plugin | 來源 | 用途 | 與自訂 skill 的關係 |
