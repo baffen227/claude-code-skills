@@ -237,3 +237,31 @@ Loop 結束後，輸出完整共識總結：
 | `references/doc-review-prompt.md` | 各文件類型的審查維度與 prompt 模板（供 Claude 理解維度，不直接傳給 codex） |
 | `references/known-issues.md` | Codex CLI 已知問題、安全用法與 OOM 事故記錄 |
 | `scripts/run-codex-review.py` | 報告組裝腳本 |
+
+---
+
+## 10. Rust 程式碼審查的階層式 SOT (2026-04-15 建立)
+
+審查 Rust 程式碼時，SOT 走階層式 fall back，不得只依賴 Obsidian vault 的原子筆記。Vault 以 TRPL 骨幹為主，在 async Rust、Embassy、`no_std`、unsafe 深度、API design idioms、現代 error handling、巨集、lifetime 進階、clippy、crate 生態系等領域幾乎零覆蓋，而這些正好是 review 最容易抓到 bug 之處。
+
+### SOT 優先順序
+
+1. **Layer 1 — Vault 原子筆記** (`~/Projects/heptabase-export/obsidian-vault/Notes/`): 有人工背書過的主題直接 cite wikilink。
+2. **Layer 2 — 官方 canonical 文件**:
+   - Rust Reference — 語言 spec
+   - Rust API Guidelines — naming / trait impl / feature design canonical
+   - Rustonomicon — unsafe Rust canonical
+   - Async Book — async 基礎
+   - Embassy Book — embassy 專屬
+   - std docs — API
+   - Clippy lint index — lint canonical
+   Vault 沒有時 fall back，cite URL。
+3. **Layer 3 — Crate 專屬 docs.rs 與 repo README**: `modular-bitfield`、`defmt`、`embedded-hal`、`she_j1939` 之類的 upstream。Layer 2 不夠時 fall back。
+
+### 執行規則
+
+三層都沒有時，Codex review 報告的這條 finding 必須明確標註「此條無 canonical 依據，僅為 reviewer judgment」，不要讓主觀判斷冒充成有依據的結論。Claude 端評估 Codex 建議時 (Section 9 共識評估)，也以這個階層判斷 finding 的份量: 有 Layer 1/2 背書的建議權重高於純主觀判斷。
+
+### 完整論述
+
+Vault 筆記: `Rust code review 的 SOT 採階層式策略，不能單靠 vault 原子筆記.md` (含 vault 缺口清單 + 長期補缺口的優先順序)
