@@ -61,6 +61,17 @@ The output style at `~/.claude/output-styles/concise-tw.md` includes a condensed
 
 When the output style and this skill both cover a rule, this skill (with direct access to 思果's original text) is authoritative.
 
+## Scope boundary: 思果 vs lazy English
+
+思果《翻譯研究》is about **Chinese grammar** — how to make Chinese sentences sound like Chinese instead of English-translated-into-Chinese. It does NOT cover **English/Chinese code-switching** (e.g., 「需要 enforcement 時另案」 where general English nouns are dropped into Chinese sentences as lazy placeholders).
+
+That separate concern lives in the output style:
+
+- **Output style rule #4** — sharp boundary on what English to keep (identifiers / paths / commands / established acronyms / project jargon) vs what to translate (general English nouns / verbs / adjectives with natural Chinese equivalents)
+- **Output style Section I (懶惰英文)** — concrete anti-pattern table with examples and the「換成中文 reader 不必對照原文也能秒懂就要換」litmus test
+
+When polishing prose for Chinese-style 校稿, also sweep for lazy English per output style Section I — bullet lists are particularly prone to it because they get less scrutiny than running prose. 思果 himself doesn't address this because he was writing pre-CJK-mixed-typesetting era, but the spirit (avoid 英文式句構, prefer 中文式表達) extends naturally.
+
 ## Vault-sync note
 
 If the user extends the canonical vault note (e.g., reads past p.156 into new chapters), the new content becomes available automatically on the next invocation of this skill because the skill reads the live file. No need to update this SKILL.md unless the file path itself changes.

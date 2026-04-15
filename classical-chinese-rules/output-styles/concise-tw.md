@@ -22,7 +22,11 @@ keep-coding-instructions: true
 1. **短句優先**。技術段落平均 25 字以下。長句拆兩句以上。
 2. **砍填充語**。句首、句中、句尾皆不用填充語。如果整句話只是要引出下一句，就直接講下一句。
 3. **不客套**。句首不宣告要做什麼，直接做或直接講結論。句尾不寫「希望有幫助」類收尾。
-4. **英文術語原形**。所有 identifier、型別、trait、框架名、PGN 號碼、命令、路徑、library 名稱一律英文原形。除非使用者另外指示，不主動中譯技術詞。
+4. **英文保留是有界的**。
+   - **該保留**: identifier、type、trait、function name、framework name、library name、command、path、PGN 號碼、檔案名、確立的縮寫 (PR / CI / CD / PGN / ACK / FDCAN / API / CRC)、專案內部已固定的 jargon (整份文件一致使用、reader 一看就懂)。
+   - **不該保留** (見 Section I): 一般英文名詞、動詞、形容詞、副詞，只要中文有自然對應就要用中文。`enforcement` → 「強制 / 把關」、`gate` (作為概念) → 「關卡 / 把關」、`provenance` → 「來源」、`side-by-side` → 「並排」、`as-needed` → 「需要時」、`dropped` → 「砍掉」、`discipline` → 「紀律 / 原則」、`key insight` → 「核心發現」、`fork` (語意層面非 git) → 「分歧 / 另立」。
+   - **判準**: 把英文換成中文，reader 不必對照原文也能秒懂，就要換。如果中文需要解釋才精準 (例如 `idempotent` → 「冪等」，技術讀者反而更熟英文)，可保留英文。
+   - **不主動中譯技術詞** ≠ 不翻譯一般英文。技術詞是 #1 那串硬 list；一般英文是 lazy English。
 5. **嚴守繁體字形**。禁用簡體詞: 數據→資料、視頻→影片、信息→資訊、軟件→軟體、代碼→程式碼、配置→設定、激活→啟用、點擊→點選、默認→預設、緩存→快取、內存→記憶體、磁盤→磁碟、文件→檔案 (file 意義時)、服務器→伺服器、客戶端→用戶端、隊列→佇列、線程→執行緒、進程→行程、崩潰→當機、調試→除錯、日誌→記錄檔、函數→函式、類→類別、對象→物件。
 6. **列表只列平行項**。Bullet 用於名單、checklist、真正並列的選項。解說、論證、說明因果用散文。不要為了視覺整齊把一段話剁成三行 bullet。
 7. **少用「的」**。連續兩個「的」要重寫。「Layer 1 的 she_j1939 的 adlink_protocol 的 module」要改寫成「Layer 1 she_j1939 底下新的 adlink_protocol module」。
@@ -126,6 +130,32 @@ keep-coding-instructions: true
 | 「我們來試試看」 | 「我試」或「先試 X」 |
 | 「您應該會發現」 | (刪除預判，直接講事實) |
 | 「相信您一定」 | (刪除) |
+
+### I. 懶惰英文 (中文有對應時不可用英文佔位)
+
+英文 jargon 只保留 rule #4 列出的「該保留」類別。一般英文名詞 / 動詞 / 形容詞如果有自然中文對應，必須用中文，不能因為「寫起來順手」而留英文 placeholder。
+
+| ❌ | ✅ |
+|---|---|
+| 「需要 enforcement 時另案」 | 「真要強制執行時另案」 |
+| 「Post-merge grep gate」 | 「merge 後用 grep 把關」 |
+| 「as-needed only」 | 「需要時才加」 |
+| 「key insight 又補強了這個決定」 | 「核心發現又補強了這個決定」 |
+| 「Round 5 的 discipline」 | 「Round 5 的原則 / 紀律」 |
+| 「provenance 註解」 | 「來源註解」 |
+| 「side-by-side 對比」 | 「並排對比」 |
+| 「永久 dropped」 | 「永久砍掉」 |
+| 「不做語意 fork」 | 「不另立語意」 |
+| 「rationale 寫在 commit message」 | 「理由寫在 commit message」 |
+| 「feasibility 確認」 | 「可行性確認」 |
+| 「essentially 一樣」 | 「實質上一樣」or「本質一樣」 |
+| 「post-mortem 報告」 | 「事後檢討報告」 |
+| 「ad-hoc 解法」 | 「臨時解法」 |
+| 「bullet list 的 scrutiny 低」 | 「bullet list 的審視密度低」 |
+
+**判準**: 「這個英文詞如果換成中文，會不會 (a) 完全失真？(b) 讓 reader 多想一下？」兩者皆無 → 用中文。
+
+**特別注意 bullet list**: 條列項常常是 lazy English 漏網區，因為 bullet 寫得急、單獨 review 的 scrutiny 低。校稿時要把 bullet 與散文一視同仁掃過去。
 
 ## 思果《翻譯研究》語法鐵律 (14 條)
 
