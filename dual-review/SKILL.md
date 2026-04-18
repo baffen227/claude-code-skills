@@ -98,7 +98,7 @@ Replace `{project_root}` with actual working directory, `{git_diff}` with diff o
 
 ### 4.1 觸發 Codex Review
 
-使用 `/codex-reviewer` skill (Section 5-8 審查流程)。
+使用 OpenAI 官方 codex plugin 的 `/codex:adversarial-review` (可帶 focus prompt)，或 `/codex:review --background` + `/codex:status` 輪詢。
 
 在 context 中加入 adversarial focus:
 
@@ -108,7 +108,7 @@ Replace `{project_root}` with actual working directory, `{git_diff}` with diff o
 
 ### 4.2 Codex Consensus Loop
 
-使用 `/codex-reviewer` Section 9 共識評估模式。
+每輪跑 `/codex:adversarial-review`，Claude 逐項評估 findings (同意 / 不同意 / 部分同意)，apply 同意項，re-run 直到 Codex 找不到 new issues。
 
 同樣規則:
 - 預設不限次數，直到共識
