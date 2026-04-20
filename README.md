@@ -45,12 +45,12 @@ cp ~/Projects/claude-code-skills/global-claude-md-template.md ~/.claude/CLAUDE.m
 此 skill 的 `SKILL.md` 寫死了一個絕對路徑:
 
 ```
-~/Projects/heptabase-export/obsidian-vault/Clippings/Literature note of the book《翻譯研究》.md
+~/Obsidian/Clippings/Literature note of the book《翻譯研究》.md
 ```
 
 新機器上需要:
 
-1. Clone `heptabase-export` repo (或等效 vault) 到 `~/Projects/heptabase-export/`
+1. 在 `~/Obsidian/` 準備好 vault (透過 Obsidian Sync、Syncthing、或從 `heptabase-export` 匯出後搬至此路徑)
 2. 確認該路徑下有《翻譯研究》讀書筆記
 3. 若 vault 位置不同，手動編輯 `~/Projects/claude-code-skills/classical-chinese-rules/SKILL.md` 的路徑
 
@@ -67,8 +67,8 @@ cd ~/Projects/claude-code-skills && ./setup.sh
 cp global-claude-md-template.md ~/.claude/CLAUDE.md
 
 # 3. 確認 Obsidian vault 可達 (僅 classical-chinese-rules 需要)
-ls "$HOME/Projects/heptabase-export/obsidian-vault/Clippings/Literature note of the book《翻譯研究》.md"
-# 若不存在: clone heptabase-export 或編輯 SKILL.md 的路徑
+ls "$HOME/Obsidian/Clippings/Literature note of the book《翻譯研究》.md"
+# 若不存在: 部署 vault 至 ~/Obsidian/ 或編輯 SKILL.md 的路徑
 
 # 4. 啟動新 Claude Code session
 # 5. /config → Output style → Concise Traditional Chinese
@@ -197,7 +197,7 @@ codex-reviewer/
 **前置需求**
 
 - Claude Code (CLI)
-- 個人的 Obsidian vault 裡有對應的思果讀書筆記。預設路徑 (在 `SKILL.md` 裡寫死): `~/Projects/heptabase-export/obsidian-vault/Clippings/Literature note of the book《翻譯研究》.md`。若路徑不同需手動編輯 `SKILL.md`
+- 個人的 Obsidian vault 裡有對應的思果讀書筆記。預設路徑 (在 `SKILL.md` 裡寫死): `~/Obsidian/Clippings/Literature note of the book《翻譯研究》.md`。若路徑不同需手動編輯 `SKILL.md`
 
 **檔案結構**
 

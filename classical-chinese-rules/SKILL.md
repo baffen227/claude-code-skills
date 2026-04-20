@@ -7,7 +7,7 @@ description: Use when reviewing, critiquing, or polishing Traditional Chinese pr
 
 Canonical literature note (461 lines, covering p.14–156) lives at:
 
-`~/Projects/heptabase-export/obsidian-vault/Clippings/Literature note of the book《翻譯研究》.md`
+`~/Obsidian/Clippings/Literature note of the book《翻譯研究》.md`
 
 **When this skill fires**: Read the full note above with the Read tool and apply 思果's rules to the current task. Do NOT duplicate the note's content into this SKILL.md — the vault file is the single source of truth. When the user adds new chapters to the vault note, this skill automatically picks them up on the next invocation.
 
@@ -78,7 +78,7 @@ If the user extends the canonical vault note (e.g., reads past p.156 into new ch
 
 ## Related references (canon)
 
-Harry's self-declared Chinese style canon (from `~/Projects/heptabase-export/obsidian-vault/Categories/如何精進中英文能力.md`):
+Harry's self-declared Chinese style canon (from `~/Obsidian/Categories/如何精進中英文能力.md`):
 
 - 思果《翻譯研究》— this skill's primary source
 - 洪愛珠《老派少女購物路線》— 日常散文節奏參考
