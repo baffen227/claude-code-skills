@@ -37,6 +37,9 @@ while IFS= read -r -d '' filepath; do
 
     # Condition 2: frontmatter tags: block-list contains the tag exactly
     if [ "$matched" -eq 0 ]; then
+        # 假設 frontmatter 形式良好 (有開頭 --- 與閉合 ---)。
+        # 缺閉合 --- 的檔會掃到 EOF,但 body 的 markdown unordered list 只在
+        # 行首為「- 」格式且前面剛好出現 tags: 字串時才會誤觸,實際 vault 不會發生。
         if awk '
             BEGIN { in_front=0; in_tags=0 }
             /^---/ { in_front++; if (in_front > 1) exit }
@@ -44,6 +47,8 @@ while IFS= read -r -d '' filepath; do
             in_tags && /^  - / {
                 val = substr($0, 5)
                 gsub(/^[[:space:]]+|[[:space:]]+$/, "", val)
+                # tag 比對在 frontmatter 為 case-sensitive (vault 慣例 tag 全小寫,Steph Ango 規則);
+                # filename 比對則是 case-insensitive。caller 應傳 lowercase tag。
                 if (val == tag) { print "found"; exit }
                 next
             }
