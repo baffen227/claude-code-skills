@@ -48,6 +48,8 @@ while IFS= read -r line; do
 
     # 抓 frontmatter 中 source-whiteboard 列表的值
     # 支援 0 空格縮排 (- item) 與 2 空格縮排 (  - item)
+    # 注意：僅支援 YAML block-sequence (每行 - item) 與單列陣列，inline flow form
+    # 例如「source-whiteboard: [A, B]」或單值「source-whiteboard: A」目前不解析。
     vals=$(awk '
         BEGIN{fm=0; sw=0}
         /^---[[:space:]]*$/{fm++; if(fm==2) exit; next}
@@ -58,7 +60,7 @@ while IFS= read -r line; do
                 print
                 next
             }
-            if (/^[a-zA-Z]/) sw=0
+            if (/^[^[:space:]-]/) sw=0
         }
     ' "$file_path" 2>/dev/null)
 
@@ -78,7 +80,7 @@ done | sort -rn
 
 # 最後一行：覆蓋率統計
 if [ "$total" -gt 0 ]; then
-    pct=$(awk "BEGIN{printf \"%.0f\", $covered*100/$total}")
+    pct=$(awk -v c="$covered" -v t="$total" 'BEGIN{printf "%.0f", c*100/t}')
 else
     pct=0
 fi

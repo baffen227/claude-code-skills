@@ -32,3 +32,11 @@ setup() {
     run bash -c "cat '$FIXTURES/ebpf-tag-output.txt' | '$SCRIPT' '/nonexistent/vault'"
     [ "$status" -ne 0 ]
 }
+
+@test "aggregate: 不抓 source-whiteboard 後的 CJK YAML key" {
+    run bash -c "cat '$FIXTURES/cjk-after-sw-input.txt' | '$SCRIPT' '$VAULT'"
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"《Real Source》"* ]]
+    [[ "$output" != *"should-not-be-captured"* ]]
+    [[ "$output" == *"COVERAGE=100%"* ]]
+}
