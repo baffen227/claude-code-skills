@@ -9,7 +9,7 @@
 #   reverse-source-notes.sh <vault_root> [search_dir...]
 #
 # $1:         vault root 絕對路徑
-# $2..(可選): 在 vault_root 下要掃的子目錄，預設 Notes inbox
+# $2..(可選): 在 vault_root 下要掃的子目錄，預設 Notes (find recursion 涵蓋 inbox/)
 #
 # stdout: 已處理 source note 標題，每行一個，sorted-unique (去除 [[ ]] 與引號)
 # 注意：僅支援 source-notes 的 YAML block-sequence (每行 - item) 形式
@@ -29,10 +29,9 @@ if [ ! -d "$VAULT" ]; then
     exit 3
 fi
 
-# 預設搜尋 Notes 與 inbox；Notes 下的 inbox/ 在真實 vault 中已涵蓋，
-# inbox 兜底測試 fixture 中 inbox/ 擺在 vault root 的情況
+# 預設搜尋 Notes；find recursion 已涵蓋 Notes/inbox/
 if [ "$#" -eq 0 ]; then
-    set -- Notes inbox
+    set -- Notes
 fi
 
 # 收集存在的搜尋目錄；不存在者靜默跳過
