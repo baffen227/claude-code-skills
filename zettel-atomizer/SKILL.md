@@ -110,3 +110,80 @@ obsidian search query="<候選概念標題或關鍵詞>" path="Notes" format=jso
 - **>80% 信心 (高)**: 標題與內容皆高度雷同 → 直接跳過 (去重)
 - **50-80% 信心 (中)**: 標題或部分內容雷同 → 標記「可能重複,建議合併」,草稿頭部加 `> 重複檢查信心: 中` + 列出可能重複的既有筆記路徑
 - **<50% 信心 (低)**: 當成新概念,寫草稿
+
+## Phase 3: 結構織網 (LLM 主動執行)
+
+把 Phase 2 產出的原子筆記 (本 batch + vault 內既有同 tag 原子筆記) 組成結構筆記草稿。
+
+### 3.1 結構決策
+
+- **無子分群 (batch ≤ 100 張)**: 結構筆記用「主索引 + 概念群組」格式
+- **有子分群 (切法 C)**: 結構筆記額外保留 source-whiteboard 維度標題作為分節
+
+### 3.2 既有索引提示
+
+若 Phase 1.5 偵測到既有索引,結構筆記草稿在 H1 標題下方插入:
+
+```markdown
+> ⚠️ vault 中已偵測到既有索引:
+> - `Categories/<file1>.md`
+> - `Categories/<file2>.md`
+>
+> 請選: (a) 永久化為獨立概念地圖 / (b) 內容併入既有索引後刪除草稿 / (c) 拒絕
+```
+
+### 3.3 套用模板
+
+讀 `~/.claude/skills/zettel-atomizer/templates/structure-note.md`,填入 batch tag、子分群分節、跨子分群連結觀察。
+
+## Phase 4: 寫入 inbox (Auto-execute)
+
+### 4.1 原子筆記批次寫入
+
+對每張 Phase 2 產出的原子筆記:
+
+```bash
+~/.claude/skills/zettel-atomizer/scripts/write-draft.sh atomic "<陳述句標題>" <<'EOF'
+<完整草稿正文>
+EOF
+```
+
+### 4.2 結構筆記寫入
+
+```bash
+~/.claude/skills/zettel-atomizer/scripts/write-draft.sh structure "<batch_tag>" <<'EOF'
+<結構筆記草稿>
+EOF
+```
+
+## Phase 5: 回報使用者 (Auto-execute)
+
+回覆四段:
+
+1. **Batch 統計** — 待處理素材 N 張,產出原子草稿 M 張、結構草稿 1 張、跳過已處理 K 張
+2. **去重統計** — 高信心去重 H 張、中信心建議合併 M 張、低信心新概念 L 張
+3. **草稿路徑樣本** — 列前 3 張原子草稿路徑 + 結構筆記路徑
+4. **三訊號檢視提示** — 「請於人工檢視草稿後回報三訊號 (高信心去重誤判率 / 中信心命中率 / 低信心新概念採納率) 以供下個 batch 校準」
+
+不主動執行任何後續動作 — 採納/合併/拒絕都是使用者責任,HITL 閘門在這裡。
+
+## 失敗模式
+
+- **`~/Obsidian/` 不存在** → 中止,告知「vault 路徑不存在,無法寫入」
+- **obsidian CLI 未裝或 sock 不通** → 中止,告知「請先確認 Obsidian app 已啟動 + CLI 已啟用」
+- **batch 下無筆記** → 直接回報「tag <X> 下無筆記」並結束
+- **Phase 1.6 載入內容超 context budget** → 提示使用者「batch 過大,建議分次處理」並列建議的子分群
+- **write-draft.sh exit code 非 0** → 把 stderr 給使用者,不假裝成功
+
+## 與既有機制的關係
+
+| 機制 | 來源 | 範圍 | 介入程度 |
+|---|---|---|---|
+| `distill` Skill | Claude Code 對話 | 即時、單張原子洞見 | HITL: AI 草稿 + 人核定 |
+| **`zettel-atomizer`** | **vault 內既有素材** | **批次、多張原子 + 結構** | **HITL: AI 草稿 + 人核定** |
+| `vault-healthcheck` (規劃中) | vault 全域 | 健檢報告 | 唯讀,不寫筆記 |
+
+## Phase B/C 預留
+
+- **Phase B**: 跨 tag 聚合 (處理多 tag 主題交集) + 自動更新既有結構筆記 (diff 寫入)
+- **Phase C**: 自動觸發 + 多格式輸出 (簡報、圖表)
