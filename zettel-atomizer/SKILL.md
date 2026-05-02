@@ -156,6 +156,45 @@ EOF
 EOF
 ```
 
+## Phase 4.5: 校稿 (Auto-execute)
+
+對 Phase 4 寫入 inbox 的所有草稿跑 `classical-chinese-rules` skill 校稿。HITL 閘門前不能讓使用者看 AI 第一輪未經修飾的中文散文 — 否則使用者花在改翻譯腔的時間會超過花在「採納/合併/拒絕」判斷的時間，HITL 失去本來的精力分配意義。
+
+### 4.5.1 載入思果規則
+
+用 Skill tool 呼叫 `classical-chinese-rules`，把思果《翻譯研究》14 條鐵律 + Output Style Section I 懶惰英文清單載入 context。
+
+### 4.5.2 grep 快掃常見違規
+
+對 inbox 內本次新寫的草稿做幾類 grep:
+
+```bash
+cd ~/Obsidian/Notes/inbox
+grep -nE "(被[去剔丟換用判]|會被|被 [a-z])" <date>-*.md
+grep -nE "[^子][^即][^未][^就][^被] 將[^軍會棋來近所]" <date>-*.md
+grep -nE "(replaced on the stack|unusual 之|fall back|fallback|user-controlled|實際上|事實上)" <date>-*.md
+grep -nE "(進行[一二三常是]|做出|做為一)" <date>-*.md
+grep -nE "(首先|其次|最後|此外|另外|接著)" <date>-*.md
+```
+
+清單對應思果鐵律:
+
+- 被字句 (p.100-102) → 改主動或重述行為者
+- 將字 (p.82-83) → 「即將」「會」「未來」替代
+- 「實際上」「事實上」(填充語) → 刪除或改「其實」
+- 機械並列 (首先/其次) → 散文節奏
+- 名詞動詞化 (進行/做出) → 還原動詞
+
+### 4.5.3 Read + Edit 修正
+
+對 grep 命中的每張草稿 Read 全文，用 Edit 修。修完再跑一次 grep 確認三類違規 (被 / 將 / 主要懶惰英文) 全 0。
+
+### 4.5.4 過關才進 Phase 5
+
+校稿完成才能宣告完工。Phase 5 報告加一行: 「N 張草稿已過思果校稿，修正 M 處違規」。
+
+> 與 CLAUDE.md `自動校稿規則` 的關係: CLAUDE.md trigger #1 對 Write/Edit tool 觸發，但本 skill 用 `write-draft.sh` 透過 Bash tool 寫入，trigger 不會觸發。Phase 4.5 補這個漏洞。
+
 ## Phase 5: 回報使用者 (Auto-execute)
 
 回覆四段:
