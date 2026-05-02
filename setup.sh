@@ -14,7 +14,7 @@ OUTPUT_STYLES_DIR="$HOME/.claude/output-styles"
 
 mkdir -p "$SKILLS_DIR" "$OUTPUT_STYLES_DIR"
 
-SKILLS=(uv-python-setup codex-reviewer tea-gitea classical-chinese-rules distill)
+SKILLS=(uv-python-setup codex-reviewer tea-gitea classical-chinese-rules distill zettel-atomizer)
 
 # Output styles managed by this repo. Format: <repo-relative-source>:<filename-in-output-styles-dir>
 OUTPUT_STYLES=(
