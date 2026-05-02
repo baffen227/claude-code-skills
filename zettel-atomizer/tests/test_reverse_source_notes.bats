@@ -13,7 +13,7 @@ setup() {
 }
 
 @test "reverse: 不抓非 zettel-atomized 的筆記 (distilled-from 不對)" {
-    cat > "$VAULT/inbox/2026-05-02-test-distill.md" <<'INNER_EOF'
+    cat > "$VAULT/Notes/inbox/2026-05-02-test-distill.md" <<'INNER_EOF'
 ---
 distilled-from: claude-code-session
 source-notes:
@@ -25,7 +25,7 @@ INNER_EOF
     run "$SCRIPT" "$VAULT"
     [ "$status" -eq 0 ]
     [[ "$output" != *"Should Not Appear"* ]]
-    rm "$VAULT/inbox/2026-05-02-test-distill.md"
+    rm "$VAULT/Notes/inbox/2026-05-02-test-distill.md"
 }
 
 @test "reverse: vault 路徑不存在時 exit 非 0" {
