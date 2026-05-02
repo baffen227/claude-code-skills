@@ -21,3 +21,9 @@ setup() {
     run "$SCRIPT" "/nonexistent/vault" "ebpf"
     [ "$status" -ne 0 ]
 }
+
+@test "detect: 找到 frontmatter tags 含 tag 的檔 (filename 不含 tag)" {
+    run "$SCRIPT" "$VAULT" "my-tag-X"
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"Categories/foo-only-frontmatter-tag.md"* ]]
+}
