@@ -50,7 +50,7 @@ cp ~/Projects/claude-code-skills/global-claude-md-template.md ~/.claude/CLAUDE.m
 
 新機器上需要:
 
-1. 在 `~/Obsidian/` 準備好 vault (透過 Obsidian Sync、Syncthing、或從 `heptabase-export` 匯出後搬至此路徑)
+1. 在 `~/Obsidian/` 準備好 vault (透過 Obsidian Sync 或 Syncthing)
 2. 確認該路徑下有《翻譯研究》讀書筆記
 3. 若 vault 位置不同，手動編輯 `~/Projects/claude-code-skills/classical-chinese-rules/SKILL.md` 的路徑
 
