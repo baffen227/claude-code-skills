@@ -1,9 +1,13 @@
 ---
 name: tea-gitea
-description: Use when interacting with Gitea — creating issues, editing PRs, posting comments, reading issue/PR details, or any operation on the BTBU Gitea server (FortuneElectric/nrg-prototype). Triggers on "Gitea issue", "建立 issue", "tea issues create", "tea pr", "edit PR", "更新 PR", "post comment", "gitea comment", "tea CLI". MUST invoke before any tea or Gitea API command to avoid known CLI quirks.
+description: |
+  DEPRECATED 2026-05-13 — BTBU 部門已把 nrg-prototype repo 從 Gitea (`git.fortune-battery-systems-lab.com.tw`) 遷至 GitHub (`github.com/fortuneBTBU`)。日常 PR / issue / comment 應改用 `gh` CLI 操作 GitHub。本 skill 僅保留供讀取舊 Gitea repo 歷史 issue / PR / comment (如 #1334 / #1338 / #1341 / #1345 / #1357 等) 之用,**不要**用於新工作流程。等 GitHub 工作流穩定後評估是否整個刪除。
+  歷史觸發詞 (僅限 archived Gitea repo 讀取): "Gitea issue", "建立 issue", "tea issues create", "tea pr", "edit PR", "更新 PR", "post comment", "gitea comment", "tea CLI"。
 ---
 
-# tea-gitea — Gitea Operations via tea CLI
+# tea-gitea — Gitea Operations via tea CLI (DEPRECATED 2026-05-13)
+
+> **遷移備註**: BTBU 部門 nrg-prototype repo 已從 Gitea 遷至 GitHub (`git@github.com:fortuneBTBU/nrg-prototype.git`)。新 PR / issue / comment 走 `gh` CLI。本 skill 僅供讀取 Gitea archived repo 歷史紀錄使用,**不再是日常工作流程的一部分**。
 
 ## Overview
 
