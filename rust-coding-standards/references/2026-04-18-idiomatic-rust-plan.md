@@ -1,3 +1,18 @@
+---
+audience: dual
+version: v1.0
+status: living-template
+coupling:
+  - target: adlink-can anchor design spec
+    path: docs/superpowers/specs/2026-05-28-idiomatic-rust-anchor-design.md
+    location: ~/Projects/fortune_btbu_github_repos/adlink-can/
+    constraint: anchor spec ≥ 本 v1.0 (per anchor spec §6.3)
+  - target: adlink-can idiomatic rust mapping doc
+    path: docs/coding-standards/idiomatic-rust-mapping.md
+    location: ~/Projects/fortune_btbu_github_repos/adlink-can/
+    constraint: mapping doc §A 13 個 placeholder 命名必須對映本 v1.0 §A
+---
+
 # Idiomatic Rust 最佳實踐計畫 (2026-04-18)
 
 > **For agentic workers**: 本檔是計畫與設計合併,不另附獨立設計文件。Phase 執行時建議搭配 `superpowers:executing-plans` skill 一條一條跑。
