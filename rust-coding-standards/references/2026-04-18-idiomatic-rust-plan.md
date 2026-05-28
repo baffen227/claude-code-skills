@@ -261,15 +261,26 @@ Target: 把 pipeline 第 3-4 步完整接入工作流程,讓 commit 前 checklis
 
 **1B — 需共識 (不擋 1A 落地)**:
 
-- [ ] **Task 1.3**: 評估 `cargo audit` 從月度升為 PR 級。執行成本約 5 秒;本專案 embedded 相依套件不多,但都關鍵 (核心 embedded crate CVE 一出就要追)。
+- [ ] **Task 1.3**: 評估 `cargo audit` 從月度升為 PR 級。執行成本約 5 秒;個別專案 embedded 相依套件多寡與 CVE 風險面由 mapping doc §B `<workspace-pub-crates>` / `<binary-crate>` 列出的具體 crate 集合決定。
   - **Acceptance**:
-    1. `<sync-reviewer>` 在 `<vc-ref-mechanism>` 留下拍板 (PR 級 / 月度) 並標示理由
-    2. CLAUDE.md Rust verification checklist 對應段落更新,引用該 comment URL
-    3. 若升 PR 級,`rust-quality-check.sh --workspace-policy` 涵蓋該 step
-- [ ] **Task 1.4**: 評估 `cargo deny check` (workspace 層,license / duplicate / banned deps)。需先達共識。
+    1. `<consensus-reviewer>` 在 `<vc-ref-mechanism>` 留下拍板 (PR 級 / 月度) 並標示理由
+    2. project `CLAUDE.md` Rust verification checklist 對應段落更新,引用該拍板 URL / SHA
+    3. 若升 PR 級,`<library-crate>` 與 `<binary-crate>` 對應的 quality-check script 涵蓋該 step
+  - **§1B reviewer routing** (per v1.0 §3.5.4):`<consensus-reviewer>` 拆 3 維度由 individual project 在 mapping doc §B 填:
+    - Reviewer 集合: solo / pair / committee (預設 solo)
+    - Ack 媒介: `<vc-ref-mechanism>` PR comment / commit message footer / issue ack / async written doc / dated meeting note (預設 any immutable written ack)
+    - 拍板頻率: per-PR / per-release / monthly (預設 per-PR)
+    - 預設策略適用條件:single-maintainer / single-developer codebase + CI / CVE feed 已自動化 + 拍板頻率 per-PR 不會卡住 developer feedback loop。不符合時 project 必 override。
+
+  > **Illustrative (nrg-prototype PR α 期間)**: `<consensus-reviewer>` 預期填 Vincent + Harry,`<vc-ref-mechanism>` 預期填 Gitea comment (後遷移 GitHub PR review)。此例為 didactic reference,非通用模板規格。
+
+- [ ] **Task 1.4**: 評估 `cargo deny check` (workspace 層,license / duplicate / banned deps)。需跟 `<consensus-reviewer>` 共識。
   - **Acceptance**:
-    1. 在 `<vc-ref-mechanism>` 明確同意 / 拒絕加入 `[workspace.metadata.deny]`,或直接合入 workspace `Cargo.toml`
-    2. 頻率決策 (PR 級 / 月度) 寫進 CLAUDE.md
+    1. `<consensus-reviewer>` 合入 project `Cargo.toml` 的 `[workspace.metadata.deny]` 段落,或在 `<vc-ref-mechanism>` 留下明確同意 / 拒絕 ack
+    2. 頻率決策 (PR 級 / 月度) 寫進 project `CLAUDE.md`,引用拍板 ack URL / SHA
+    3. **§1B reviewer routing** 同 Task 1.3 (per v1.0 §3.5.4,3 維度 + 預設策略)
+
+  > **Illustrative (nrg-prototype PR α 期間)**: `<consensus-reviewer>` 預期填 Vincent,合入 `nrg-prototype/Cargo.toml` 由 Vincent 主導。此例為 didactic reference,非通用模板規格。
 
 **交付物**:
 
