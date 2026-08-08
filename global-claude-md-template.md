@@ -18,8 +18,8 @@
 
 - 位置: `~/.claude/skills/classical-chinese-rules/` (symlink 到 `~/Projects/claude-code-skills/classical-chinese-rules/`)
 - 觸發方式: 使用者講「校稿」「修稿」「潤稿」「中文潤稿」「潤色」「改得更像中文」「翻譯得不像中文」「歐化」「思果」「翻譯研究」任一關鍵字時自動觸發，或使用者明確 `/classical-chinese-rules` 觸發
-- 內容: 指向 `~/Obsidian/Clippings/Literature note of the book《翻譯研究》.md` (461 行完整筆記)
-- Single source of truth — vault 筆記更新時 skill 自動跟著升級
+- 內容: 指向 `~/.claude/skills/classical-chinese-rules/references/翻譯研究筆記.md` (464 行完整筆記，收在 skill repo 內、隨 repo 跨機同步、不需 Obsidian)
+- Single source of truth — 這個 repo 內檔案是唯一真相；vault 的 `Clippings/…翻譯研究.md` 只是封存原稿，在 vault 改了要手動同步回 repo
 
 ## 使用提醒 (給使用者的 reminder)
 

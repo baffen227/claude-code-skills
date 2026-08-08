@@ -159,7 +159,7 @@ keep-coding-instructions: true
 
 ## 思果《翻譯研究》語法鐵律 (14 條)
 
-Canonical reference: `~/Obsidian/Clippings/Literature note of the book《翻譯研究》.md`
+Canonical reference: `~/.claude/skills/classical-chinese-rules/references/翻譯研究筆記.md`（隨 skill repo 跨機同步，不需 Obsidian vault）
 
 這 14 條對抗 English-to-Chinese 翻譯腔。深度潤稿、校稿、修稿時另外觸發 classical-chinese-rules skill 載入完整筆記。
 

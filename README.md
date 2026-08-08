@@ -42,21 +42,17 @@ cp ~/Projects/claude-code-skills/global-claude-md-template.md ~/.claude/CLAUDE.m
 
 不納入 setup.sh 自動安裝的原因: 全域 CLAUDE.md 可能有機器特定的內容 (如硬體路徑、偏好的工具組合)，強制覆寫有風險。手動複製後再 HITL 編輯最安全。
 
-### 2. `classical-chinese-rules` skill 的 Obsidian vault 筆記
+### 2. `classical-chinese-rules` skill 的思果筆記（已收進 repo，無需額外準備）
 
-此 skill 的 `SKILL.md` 寫死了一個絕對路徑:
+此 skill 讀的思果《翻譯研究》讀書筆記收在 repo 內:
 
 ```
-~/Obsidian/Clippings/Literature note of the book《翻譯研究》.md
+~/.claude/skills/classical-chinese-rules/references/翻譯研究筆記.md
 ```
 
-新機器上需要:
+跑完 `setup.sh` 就隨 skill symlink 一起到位，**不需要 Obsidian vault**。skill 觸發時直接讀這個 repo 內檔案，任何部署了 skills repo 的機器都能用。
 
-1. 在 `~/Obsidian/` 準備好 vault (透過 Obsidian Sync 或 Syncthing)
-2. 確認該路徑下有《翻譯研究》讀書筆記
-3. 若 vault 位置不同，手動編輯 `~/Projects/claude-code-skills/classical-chinese-rules/SKILL.md` 的路徑
-
-沒做這步的後果: skill 會被觸發但 Read tool 會失敗，Claude 會 fallback 到 hot path (output style) 的 14 條規則，深度潤稿功能不可用。
+vault 裡 `~/Obsidian/Clippings/Literature note of the book《翻譯研究》.md` 留一份封存原稿（筆記的來源），但 skill 不再讀它；若在 vault 改了內容，要手動同步回 `references/翻譯研究筆記.md`。
 
 ### 部署檢查清單 (新機器一次性)
 
@@ -68,9 +64,7 @@ cd ~/Projects/claude-code-skills && ./setup.sh
 # 2. 複製全域 CLAUDE.md 模板
 cp global-claude-md-template.md ~/.claude/CLAUDE.md
 
-# 3. 確認 Obsidian vault 可達 (僅 classical-chinese-rules 需要)
-ls "$HOME/Obsidian/Clippings/Literature note of the book《翻譯研究》.md"
-# 若不存在: 部署 vault 至 ~/Obsidian/ 或編輯 SKILL.md 的路徑
+# 3. classical-chinese-rules 的思果筆記已隨 repo 附帶 (references/翻譯研究筆記.md)，無需另外準備 vault
 
 # 4. 啟動新 Claude Code session
 # 5. /config → Output style → Concise Traditional Chinese
@@ -99,7 +93,7 @@ claude plugin marketplace add kepano/obsidian-skills && claude plugin install ob
 
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code)（CLI）
 - [Codex CLI](https://github.com/openai/codex)（`dual-review` 的 Codex 對抗審查階段需要）
-- 個人 Obsidian vault（`classical-chinese-rules` 讀思果筆記、`distill` 與 `zettel-atomizer` 寫草稿到 vault 時需要）
+- 個人 Obsidian vault（`distill` 與 `zettel-atomizer` 寫草稿到 vault 時需要；`classical-chinese-rules` 已不需 vault，思果筆記收在 repo 內）
 
 ---
 
@@ -137,9 +131,9 @@ uv-python-setup/
 | 層 | 位置 | 觸發 | 作用 |
 |----|------|------|------|
 | **Hot path** — Output Style | `~/.claude/output-styles/concise-tw.md` | 每 session 自動載入 system prompt (需先用 `/config` 啟用) | 14 條思果語法鐵律 + 8 類 anti-pattern (50+ 禁例)，always active，處理 80% 常見錯 |
-| **Cold path** — 本 skill | `~/.claude/skills/classical-chinese-rules/` | 使用者說「校稿」「潤稿」「歐化」等關鍵字，或手動 `/classical-chinese-rules` | 載入完整的 `Literature note of the book《翻譯研究》.md` (461 行)，處理 hot path 之外的深度規則 (十條「的」字細則、代名詞使用、節奏平仄) |
+| **Cold path** — 本 skill | `~/.claude/skills/classical-chinese-rules/` | 使用者說「校稿」「潤稿」「歐化」等關鍵字，或手動 `/classical-chinese-rules` | 載入完整的 `references/翻譯研究筆記.md` (464 行)，處理 hot path 之外的深度規則 (十條「的」字細則、代名詞使用、節奏平仄) |
 
-**Single source of truth**: skill 內容不複製思果筆記，直接指向 Obsidian vault 的絕對路徑。使用者擴充 vault 筆記時，skill 自動跟著升級，不需改 `SKILL.md`。
+**Single source of truth**: 思果筆記收在 repo 內 `references/翻譯研究筆記.md`，skill 直接讀它、隨 repo 跨機同步，不需 Obsidian vault。要擴充筆記就改這個檔再 commit，skill 下次觸發自動跟上。
 
 **⚠️ 使用提醒**
 
@@ -163,13 +157,15 @@ uv-python-setup/
 **前置需求**
 
 - Claude Code (CLI)
-- 個人的 Obsidian vault 裡有對應的思果讀書筆記。預設路徑 (在 `SKILL.md` 裡寫死): `~/Obsidian/Clippings/Literature note of the book《翻譯研究》.md`。若路徑不同需手動編輯 `SKILL.md`
+- 思果讀書筆記已收進 repo (`references/翻譯研究筆記.md`)，跑完 `setup.sh` 即到位，不需 Obsidian vault
 
 **檔案結構**
 
 ```
 classical-chinese-rules/
-├── SKILL.md                          # 指向 vault 筆記的路由 + scope map + usage procedure
+├── SKILL.md                          # 指向 references/ 筆記的路由 + scope map + usage procedure
+├── references/
+│   └── 翻譯研究筆記.md               # 思果《翻譯研究》完整讀書筆記 (464 行) — SOT
 └── output-styles/
     └── concise-tw.md                 # Hot path — 每 session 自動載入 system prompt
 ```

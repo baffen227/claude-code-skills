@@ -5,11 +5,11 @@ description: Use when reviewing, critiquing, or polishing Traditional Chinese pr
 
 # Classical Chinese Grammar Rules — 思果《翻譯研究》
 
-Canonical literature note (461 lines, covering p.14–156) lives at:
+Canonical literature note (464 lines, covering p.14–156) ships inside this skill's repo:
 
-`~/Obsidian/Clippings/Literature note of the book《翻譯研究》.md`
+`~/.claude/skills/classical-chinese-rules/references/翻譯研究筆記.md`
 
-**When this skill fires**: Read the full note above with the Read tool and apply 思果's rules to the current task. Do NOT duplicate the note's content into this SKILL.md — the vault file is the single source of truth. When the user adds new chapters to the vault note, this skill automatically picks them up on the next invocation.
+**When this skill fires**: Read the full note above with the Read tool and apply 思果's rules to the current task. Do NOT duplicate the note's content into this SKILL.md — the `references/` file is the single source of truth. Because the note lives in the skill repo (not the Obsidian vault), this skill works on any machine where the skills repo is deployed — no vault required.
 
 ## Scope (chapter anchors in the note)
 
@@ -72,9 +72,11 @@ That separate concern lives in the output style:
 
 When polishing prose for Chinese-style 校稿, also sweep for lazy English per output style Section I — bullet lists are particularly prone to it because they get less scrutiny than running prose. 思果 himself doesn't address this because he was writing pre-CJK-mixed-typesetting era, but the spirit (avoid 英文式句構, prefer 中文式表達) extends naturally.
 
-## Vault-sync note
+## Extending the note
 
-If the user extends the canonical vault note (e.g., reads past p.156 into new chapters), the new content becomes available automatically on the next invocation of this skill because the skill reads the live file. No need to update this SKILL.md unless the file path itself changes.
+`references/翻譯研究筆記.md` in this repo is the single source of truth. To extend it (e.g., read past p.156 into new chapters), edit that repo file directly and commit — the skill picks up the new content on the next invocation.
+
+An archival copy of the same note still lives in the user's Obsidian vault at `~/Obsidian/Clippings/Literature note of the book《翻譯研究》.md` (the original it was copied from). That vault copy is NOT read at runtime; if the user edits it there, manually sync the change back into `references/翻譯研究筆記.md`.
 
 ## Related references (canon)
 
