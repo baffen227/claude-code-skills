@@ -24,10 +24,12 @@ skill-name/
 
 **Skills** — 在 `~/.claude/skills/` 建立 symlink 指向此 repo 的各 skill 目錄 (dir 層級):
 ```
-~/.claude/skills/codex-reviewer → ~/Projects/claude-code-skills/codex-reviewer
-~/.claude/skills/tea-gitea → ~/Projects/claude-code-skills/tea-gitea
 ~/.claude/skills/uv-python-setup → ~/Projects/claude-code-skills/uv-python-setup
 ~/.claude/skills/classical-chinese-rules → ~/Projects/claude-code-skills/classical-chinese-rules
+~/.claude/skills/distill → ~/Projects/claude-code-skills/distill
+~/.claude/skills/zettel-atomizer → ~/Projects/claude-code-skills/zettel-atomizer
+~/.claude/skills/rust-coding-standards → ~/Projects/claude-code-skills/rust-coding-standards
+~/.claude/skills/dual-review → ~/Projects/claude-code-skills/dual-review
 ```
 
 **Output styles** — 在 `~/.claude/output-styles/` 建立 symlink 指向特定檔案 (file 層級):
@@ -51,14 +53,7 @@ skill-name/
 |---|---|---|
 | 位置 | `~/.claude/skills/` (symlink) | `~/.claude/plugins/cache/openai-codex/` |
 | 管理 | 此 repo + `setup.sh` | `claude plugin install` |
-| 範例 | `/codex-reviewer`, `/tea-gitea` | `/codex:rescue`, `/codex:setup` |
-
-## 已知 Codex CLI Quirks
-
-詳見 `codex-reviewer/references/known-issues.md`:
-- `codex review` 不支援 stdin pipe (會觸發 fork bomb → OOM)
-- `--uncommitted` / `--base` 不能與自訂 prompt 同時使用
-- 所有 codex 指令須用 `timeout 120` 包裝
+| 範例 | `/classical-chinese-rules`, `/dual-review` | `/codex:rescue`, `/codex:setup` |
 
 ## Language
 

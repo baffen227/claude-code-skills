@@ -7,9 +7,11 @@
 | Skill | 用途 | 觸發方式 |
 |-------|------|---------|
 | [uv-python-setup](./uv-python-setup/) | 在任何倉庫初始化 Python uv 開發環境 | 「初始化 Python 環境」、「設定 uv」、「setup python」 |
-| [codex-reviewer](./codex-reviewer/) | 整合 OpenAI Codex CLI 進行程式碼與文件審查 | 「幫我 review」、「請 Codex 檢查」、「codex review」 |
-| [tea-gitea](./tea-gitea/) | BTBU Gitea 操作 (issues, comments, PRs) via tea CLI | 「update Gitea」、「post to issue」、「gitea comment」 |
 | [classical-chinese-rules](./classical-chinese-rules/) | 依思果《翻譯研究》對繁體中文 prose 做深度潤稿，對抗歐化中文 | 「校稿」、「修稿」、「潤稿」、「中文潤稿」、「改得更像中文」、「歐化」、「思果」 |
+| [distill](./distill/) | 從 Claude Code 對話萃取核心洞見，寫成 Steph Ango 筆記法的 Obsidian 草稿到 inbox | `/distill`、「distill 對話」、「把這段對話的洞見寫進 vault」 |
+| [zettel-atomizer](./zettel-atomizer/) | 把 vault 內單一主題 tag 的素材聚合成 batch，萃取成原子筆記 + 結構筆記草稿到 inbox | `/zettel-atomize <tag>` |
+| [rust-coding-standards](./rust-coding-standards/) | 審查或撰寫 BTBU 韌體 Rust 時載入完整的 clean-code / minimalism / modularity 紀律 | 「review Rust」、CLAUDE.md red-line 引用 clean-code / minimalism / modularity |
+| [dual-review](./dual-review/) | 實作完成後的雙重品質審查：先 Agent B（Claude subagent）再 Codex 對抗審查 | `/dual-review`、程式碼改動後 |
 
 ## 快速安裝
 
@@ -77,18 +79,27 @@ ls "$HOME/Obsidian/Clippings/Literature note of the book《翻譯研究》.md"
 
 ## Plugins (第三方)
 
-| Plugin | 來源 | 用途 | 與自訂 skill 的關係 |
-|--------|------|------|-------------------|
-| [openai/codex-plugin-cc](https://github.com/openai/codex) | Claude Code marketplace | `/codex:rescue`, `/codex:setup` | 與 `codex-reviewer` 各自獨立，不衝突 |
+自訂 skill 之外，另外用官方 plugin 系統管理兩組第三方 skill，兩者並存不衝突:
 
-安裝: `claude plugin marketplace add openai/codex-plugin-cc && claude plugin install codex@openai-codex`
+| Plugin | 來源 | 用途 |
+|--------|------|------|
+| [openai/codex-plugin-cc](https://github.com/openai/codex) | Claude Code marketplace | `/codex:rescue`、`/codex:setup` 等 Codex 整合指令 |
+| [kepano/obsidian-skills](https://github.com/kepano/obsidian-skills) | Claude Code marketplace | `obsidian:obsidian-cli`、`obsidian:obsidian-markdown` 等 Obsidian 檔案操作 skill |
+
+安裝:
+
+```bash
+claude plugin marketplace add openai/codex-plugin-cc && claude plugin install codex@openai-codex
+claude plugin marketplace add kepano/obsidian-skills && claude plugin install obsidian@obsidian-skills
+```
+
+第三方 skill 走 plugin 系統（`claude plugin update` 更新），本 repo 的自訂 skill 走 symlink（改完存檔即生效）。分流理由: plugin 適合不會去改的 upstream，symlink 適合自己開發中的 skill。
 
 ## 前置需求
 
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code)（CLI）
-- [uv](https://docs.astral.sh/uv/)（`codex-reviewer` 的報告組裝腳本需要）
-- [Codex CLI](https://github.com/openai/codex) v0.112.0+（僅 `codex-reviewer` 需要）
-- [tea](https://about.gitea.com/products/tea/) v0.12.0+（僅 `tea-gitea` 需要）
+- [Codex CLI](https://github.com/openai/codex)（`dual-review` 的 Codex 對抗審查階段需要）
+- 個人 Obsidian vault（`classical-chinese-rules` 讀思果筆記、`distill` 與 `zettel-atomizer` 寫草稿到 vault 時需要）
 
 ---
 
@@ -112,51 +123,6 @@ uv-python-setup/
 └── references/
     └── ruff-config.md    # ruff 與 pre-commit 設定模板
 ```
-
----
-
-### codex-reviewer
-
-整合 [OpenAI Codex CLI](https://github.com/openai/codex) 對程式碼與文件進行獨立審查，產出結構化審查報告。
-
-**分流邏輯：**
-
-| 情境 | 使用的 Codex 子命令 |
-|------|---------------------|
-| 有 git 變更 | `codex review --uncommitted` 或 `codex review --base <branch>` |
-| 審查特定文件 | `codex exec -s read-only` |
-| 混合情境 | 依序執行兩者 |
-
-**執行流程：**
-
-1. 偵測審查範圍（code / doc / mixed）
-2. 執行 codex review 和/或 codex exec（所有指令前綴 `timeout 120`）
-3. 組裝結構化報告至 `docs/reviews/YYYY-MM-DD-<subject>.md`
-4. 向使用者摘要呈現重點發現
-
-**檔案結構：**
-
-```
-codex-reviewer/
-├── SKILL.md                       # 核心指令（含安全護欄）
-├── references/
-│   ├── code-review-prompt.md      # 程式碼審查維度（供 Claude 理解）
-│   ├── doc-review-prompt.md       # 文件審查維度與 prompt 模板
-│   └── known-issues.md            # Codex CLI 已知問題與安全用法
-└── scripts/
-    └── run-codex-review.py        # 報告組裝腳本（PEP 723，uv run 直接執行）
-```
-
-**安全護欄：**
-
-此 skill 內建多層安全防護，源自實作過程中的 OOM 事故經驗：
-
-1. **timeout 包裝** — 所有 codex 指令前綴 `timeout 120`（120 秒上限）
-2. **禁止 stdin pipe** — `codex review` 不支援 stdin 輸入，錯誤用法會觸發 fork bomb
-3. **CLI 引數限制** — `--uncommitted`/`--base` 不能與自訂 `[PROMPT]` 同時使用
-4. **零輸出監控** — 30 秒無輸出即視為異常終止
-
-詳細的事故分析與 CLI 限制記錄在 [`codex-reviewer/references/known-issues.md`](./codex-reviewer/references/known-issues.md)。
 
 ---
 
@@ -210,43 +176,95 @@ classical-chinese-rules/
 
 ---
 
-### tea-gitea
+### distill
 
-透過 [tea CLI](https://about.gitea.com/products/tea/) 操作 BTBU Gitea server，編碼 `tea` v0.12.0 的 working patterns 與已知 quirks。
+從 Claude Code 對話萃取核心知識洞見，寫成符合 Steph Ango 筆記法的 Obsidian 草稿，落到 `~/Obsidian/Notes/inbox/` 等 HITL 核定。閉合 Karpathy 說的「對話洞見蒸發」問題：把散在對話裡的高價值判斷回流進 vault。
 
-**主要 Recipes：**
+**觸發**：`/distill`、要求「distill 對話」、或提到「把這段對話的洞見寫進 vault」「knowledge distillation」「Karpathy 蒸餾迴路」。
 
-| 操作 | 方式 |
-|------|------|
-| 發 comment | `tea api -X POST -F "body=@file"`（`tea comment` 不支援 `--body`） |
-| 讀 issue body | `tea api GET` + JSON parse（`tea issues details` 不顯示 body） |
-| 讀 comments | `tea api GET /issues/{N}/comments` + JSON parse |
-| ZH/EN comment pair | 寫入 temp file → 分別 POST（Issue #1334 慣例） |
+**現況**：Phase A 只支援手動觸發、單張原子洞見輸出。草稿寫到 inbox 後由本人核定，不直接進永久區。
 
-**已知 Quirks（tea v0.12.0）：**
-
-1. `tea comment` 沒有 `--body` flag — 必須用 `tea api -F`
-2. `tea api` 沒有 `--body` flag — 用 `-F "key=@file"` 讀檔
-3. `tea issues details` 不顯示 issue body — 用 `tea api GET`
-
-**檔案結構：**
+**檔案結構**
 
 ```
-tea-gitea/
-└── SKILL.md    # Recipes + quick reference + quirks
+distill/
+├── SKILL.md                 # 萃取流程 + 落草稿規則
+├── scripts/
+│   └── write-draft.sh       # 寫草稿到 inbox
+└── templates/
+    └── distill-note.md      # 原子洞見模板
+```
+
+---
+
+### zettel-atomizer
+
+把 vault 內以單一主題 tag 標記的素材聚合成 batch，萃取成原子筆記 + 結構筆記草稿，落到 `~/Obsidian/Notes/inbox/` 等 HITL 核定。
+
+**觸發**：`/zettel-atomize <tag>`。
+
+**現況**：Phase A。選 batch 的第一順位是「使用者能否審查」——不熟的主題就算規模剛好也先擱著，因為 HITL 失靈的 batch 比沒跑更糟。草稿一律先進 inbox，由本人核定後才升永久區。
+
+**檔案結構**
+
+```
+zettel-atomizer/
+├── SKILL.md
+├── scripts/                 # 聚合 / 反查來源 / 偵測既有 index / 寫草稿
+├── templates/               # 原子筆記 + 結構筆記模板
+└── tests/                   # bats 測試
+```
+
+---
+
+### rust-coding-standards
+
+審查或撰寫 BTBU 韌體 Rust（`nrg-prototype`、INT-004 / INT-005 / MCU Self Test、FMEA）時，載入一整套 Rust 品質紀律做深度把關。
+
+**觸發**：「review Rust」、撰寫韌體 Rust，或 CLAUDE.md 的 red-line 引用 clean-code / minimalism / modularity 規則時。
+
+**載入內容**：`clean-code.md`、`minimalism.md`、`modularity.md` 三份核心紀律，外加 dual-review 設計與 idiomatic-rust 計畫作補充。
+
+**檔案結構**
+
+```
+rust-coding-standards/
+├── SKILL.md
+└── references/
+    ├── clean-code.md
+    ├── minimalism.md
+    ├── modularity.md
+    └── ...                  # dual-review 設計 + idiomatic-rust 計畫
+```
+
+---
+
+### dual-review
+
+實作完成後的雙重品質審查。先跑 Agent B（Claude subagent）審一輪，再跑 Codex 對抗審查，兩者都對照專案的 coding standards。
+
+**觸發**：`/dual-review`，或程式碼改動後。開跑前會先問使用者確認。
+
+**與其他 skill 的關係**：Codex 對抗審查階段需要 Codex CLI；審查依據是 `rust-coding-standards` 之類的專案紀律。
+
+**檔案結構**
+
+```
+dual-review/
+└── SKILL.md                 # 雙重審查流程 + 確認機制
 ```
 
 ---
 
 ## 設計文件
 
-完整的設計決策與實施記錄保存在 [`docs/`](./docs/) 目錄：
+完整的設計決策與實施記錄保存在 [`docs/`](./docs/) 目錄，主要有:
 
 | 文件 | 內容 |
 |------|------|
 | [uv-python-setup-design.md](./docs/uv-python-setup-design.md) | uv-python-setup 的設計規格與決策 |
-| [codex-reviewer-design.md](./docs/codex-reviewer-design.md) | codex-reviewer 的設計規格、安全護欄與 CLI 限制 |
-| [implementation-plan.md](./docs/implementation-plan.md) | 兩個 skills 的分步實施計畫與過程中的重要發現 |
+| [implementation-plan.md](./docs/implementation-plan.md) | 早期 skills 的分步實施計畫與過程中的重要發現 |
+| [2026-05-28-idiomatic-rust-plan-abstraction-design.md](./docs/2026-05-28-idiomatic-rust-plan-abstraction-design.md) | rust-coding-standards 的 idiomatic-rust 抽象化設計 |
 
 ## 新增 Skill
 
