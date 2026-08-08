@@ -3,14 +3,12 @@ created: {{date}}
 source: ai-assisted
 distilled-from: zettel-atomizer-structure
 source-batch-tag: {{batch_tag}}
-status: draft
+status: permanent
 tags:
-  - inbox
-  - structure
   - {{batch_tag}}
 ---
 
-# {{batch_tag}} 主題結構筆記 (草稿)
+# {{batch_tag}} 主題結構筆記
 
 {{thematic_overview_2_3_paragraphs}}
 
@@ -24,4 +22,4 @@ tags:
 
 {{cross_subgroup_observations}}
 
-> AI 草稿提示：本結構筆記為當前 batch 的全景織網。新原子筆記加入時，重跑 zettel-atomizer 會產出新草稿 (不 patch 既有)。
+> 本結構筆記為當前 batch 的全景織網。新原子筆記加入時，重跑 zettel-atomizer 會產出新筆記 (不 patch 既有)。

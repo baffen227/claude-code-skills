@@ -1,6 +1,6 @@
 ---
 name: zettel-atomizer
-description: 把 vault 內以單一主題 tag 標記的素材聚合成 batch,萃取成原子筆記 + 結構筆記草稿,落到 ~/Obsidian/Notes/inbox/ 等 HITL 核定。使用者打 /zettel-atomize <tag> 觸發。Phase A 第一個 batch 為 ebpf。
+description: 把 vault 內以單一主題 tag 標記的素材聚合成 batch,萃取成原子筆記 + 結構筆記,直落 ~/Obsidian/Notes/ 永久區 (frontmatter 帶 source: ai-assisted)。使用者打 /zettel-atomize <tag> 觸發。
 ---
 
 # zettel-atomizer
@@ -10,17 +10,17 @@ description: 把 vault 內以單一主題 tag 標記的素材聚合成 batch,萃
 1. **原子筆記** — 每張一個概念、標題為陳述句、能精準 wikilink 引用
 2. **結構筆記** — 把同主題的原子筆記織成索引/論述網絡
 
-兩者皆走 HITL 草稿閘門,不直接寫永久筆記區。
+兩者皆直落 `Notes/` 永久區,frontmatter 帶 `source: ai-assisted` 標記來源 (2026-08-08 Obsidian 重定位後,inbox 暫存與人工核定升級流程退役)。
 
-完整設計脈絡見 `~/Projects/knowledge-os/docs/superpowers/specs/2026-05-02-zettel-atomizer-design.md`。
+完整設計脈絡見 `~/Projects/knowledge-os/docs/superpowers/specs/2026-05-02-zettel-atomizer-design.md` (歷史快照,落點為 inbox 的舊設計);重定位決策見 knowledge-os memory `obsidian-repositioning`。
 
 ## 設計原則
 
-1. **HITL 不可繞過** — AI 永遠只產草稿到 inbox,永遠不直接寫入永久筆記區
+1. **來源透明** — 筆記 frontmatter 帶 `source: ai-assisted`,AI 產出與人工筆記可隨時區分;品質關卡是 Phase 4.5 思果校稿,不是人工核定
 2. **主題聚合優先,不逐篇處理** — 第一步是用 tag 把同主題素材聚成 batch,再從全景視角原子化
 3. **增量式、冪等** — 重跑時自動跳過已處理素材 (反查 source-notes)
 4. **嚴格純概念粒度** — 步驟與程式碼範例留 References,不進原子 namespace。軟字數 ≤500 字
-5. **與 distill 共用 inbox 與模板基礎**
+5. **與 distill 共用落點 (直寫 `Notes/`) 與模板基礎**
 
 ## 觸發
 
@@ -62,7 +62,7 @@ obsidian tag name=<tag> verbose | \
 呼叫 reverse script,得已處理的 source notes 集合:
 
 ```bash
-~/.claude/skills/zettel-atomizer/scripts/reverse-source-notes.sh "$(obsidian vault info=path)" Notes/inbox Notes
+~/.claude/skills/zettel-atomizer/scripts/reverse-source-notes.sh "$(obsidian vault info=path)" Notes
 ```
 
 把這個集合從 1.1 的 batch 清單剔除,得「待處理 batch」。
@@ -136,7 +136,9 @@ obsidian search query="<候選概念標題或關鍵詞>" path="Notes" format=jso
 
 讀 `~/.claude/skills/zettel-atomizer/templates/structure-note.md`,填入 batch tag、子分群分節、跨子分群連結觀察。
 
-## Phase 4: 寫入 inbox (Auto-execute)
+## Phase 4: 寫入 Notes/ (Auto-execute)
+
+寫入時**記下 `write-draft.sh` 回印的每個檔案路徑**,Phase 4.5 校稿與 Phase 5 回報都靠這份清單 (檔名已無日期前綴,不能再用日期 glob 撈)。
 
 ### 4.1 原子筆記批次寫入
 
@@ -158,7 +160,7 @@ EOF
 
 ## Phase 4.5: 校稿 (Auto-execute)
 
-對 Phase 4 寫入 inbox 的所有草稿跑 `classical-chinese-rules` skill 校稿。HITL 閘門前不能讓使用者看 AI 第一輪未經修飾的中文散文 — 否則使用者花在改翻譯腔的時間會超過花在「採納/合併/拒絕」判斷的時間，HITL 失去本來的精力分配意義。
+對 Phase 4 寫入的所有筆記跑 `classical-chinese-rules` skill 校稿。筆記直落永久區,沒有人工核定閘門攔翻譯腔,校稿是唯一的品質關卡 — 不能讓 AI 第一輪未經修飾的中文散文進 vault。
 
 ### 4.5.1 載入思果規則
 
@@ -166,15 +168,14 @@ EOF
 
 ### 4.5.2 grep 快掃常見違規
 
-對 inbox 內本次新寫的草稿做幾類 grep:
+對 Phase 4 記下的檔案路徑清單做幾類 grep (以下 `"${FILES[@]}"` 代表該清單):
 
 ```bash
-cd ~/Obsidian/Notes/inbox
-grep -nE "(被[去剔丟換用判]|會被|被 [a-z])" <date>-*.md
-grep -nE "[^子][^即][^未][^就][^被] 將[^軍會棋來近所]" <date>-*.md
-grep -nE "(replaced on the stack|unusual 之|fall back|fallback|user-controlled|實際上|事實上)" <date>-*.md
-grep -nE "(進行[一二三常是]|做出|做為一)" <date>-*.md
-grep -nE "(首先|其次|最後|此外|另外|接著)" <date>-*.md
+grep -nE "(被[去剔丟換用判]|會被|被 [a-z])" "${FILES[@]}"
+grep -nE "[^子][^即][^未][^就][^被] 將[^軍會棋來近所]" "${FILES[@]}"
+grep -nE "(replaced on the stack|unusual 之|fall back|fallback|user-controlled|實際上|事實上)" "${FILES[@]}"
+grep -nE "(進行[一二三常是]|做出|做為一)" "${FILES[@]}"
+grep -nE "(首先|其次|最後|此外|另外|接著)" "${FILES[@]}"
 ```
 
 清單對應思果鐵律:
@@ -187,11 +188,19 @@ grep -nE "(首先|其次|最後|此外|另外|接著)" <date>-*.md
 
 ### 4.5.3 Read + Edit 修正
 
-對 grep 命中的每張草稿 Read 全文，用 Edit 修。修完再跑一次 grep 確認三類違規 (被 / 將 / 主要懶惰英文) 全 0。
+對 grep 命中的每張筆記 Read 全文，用 Edit 修。修完再跑一次 grep 確認三類違規 (被 / 將 / 主要懶惰英文) 全 0。
 
-### 4.5.4 過關才進 Phase 5
+### 4.5.4 過關才進 4.6
 
-校稿完成才能宣告完工。Phase 5 報告加一行: 「N 張草稿已過思果校稿，修正 M 處違規」。
+校稿完成才能往下走。Phase 5 報告加一行: 「N 張筆記已過思果校稿，修正 M 處違規」。
+
+### 4.6 重跑索引
+
+```bash
+python3 ~/Projects/knowledge-os/scripts/reindex_vault.py
+```
+
+失敗不擋回報，但 Phase 5 要註明「索引未更新，之後手動重跑」。
 
 > 與 CLAUDE.md `自動校稿規則` 的關係: CLAUDE.md trigger #1 對 Write/Edit tool 觸發，但本 skill 用 `write-draft.sh` 透過 Bash tool 寫入，trigger 不會觸發。Phase 4.5 補這個漏洞。
 
@@ -199,12 +208,10 @@ grep -nE "(首先|其次|最後|此外|另外|接著)" <date>-*.md
 
 回覆四段:
 
-1. **Batch 統計** — 待處理素材 N 張,產出原子草稿 M 張、結構草稿 1 張、跳過已處理 K 張
-2. **去重統計** — 高信心去重 H 張、中信心建議合併 M 張、低信心新概念 L 張
-3. **草稿路徑樣本** — 列前 3 張原子草稿路徑 + 結構筆記路徑
-4. **三訊號檢視提示** — 「請於人工檢視草稿後回報三訊號 (高信心去重誤判率 / 中信心命中率 / 低信心新概念採納率) 以供下個 batch 校準」
-
-不主動執行任何後續動作 — 採納/合併/拒絕都是使用者責任,HITL 閘門在這裡。
+1. **Batch 統計** — 待處理素材 N 張,產出原子筆記 M 張、結構筆記 1 張、跳過已處理 K 張
+2. **去重統計** — 高信心去重 H 張、中信心標記可能重複 M 張、低信心新概念 L 張
+3. **筆記路徑樣本** — 列前 3 張原子筆記路徑 + 結構筆記路徑
+4. **反悔方式** — 筆記已直落永久區;不要的用 Obsidian CLI `obsidian delete` 刪 (進 trash 可復原)。歡迎抽查後回饋去重誤判 / 粒度問題,供下個 batch 校準
 
 ## 失敗模式
 
@@ -218,8 +225,8 @@ grep -nE "(首先|其次|最後|此外|另外|接著)" <date>-*.md
 
 | 機制 | 來源 | 範圍 | 介入程度 |
 |---|---|---|---|
-| `distill` Skill | Claude Code 對話 | 即時、單張原子洞見 | HITL: AI 草稿 + 人核定 |
-| **`zettel-atomizer`** | **vault 內既有素材** | **批次、多張原子 + 結構** | **HITL: AI 草稿 + 人核定** |
+| `distill` Skill | Claude Code 對話 | 即時、單張原子洞見 | AI 直寫 + `source: ai-assisted` 標記,使用者事後抽查 |
+| **`zettel-atomizer`** | **vault 內既有素材** | **批次、多張原子 + 結構** | **同上** |
 | `vault-healthcheck` (規劃中) | vault 全域 | 健檢報告 | 唯讀,不寫筆記 |
 
 ## Phase B/C 預留

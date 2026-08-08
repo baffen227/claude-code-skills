@@ -6,10 +6,8 @@ source-batch-tag: ebpf
 source-notes:
   - "[[BPF Maps]]"
   - "[[Hash Table Map]]"
-status: draft
+status: permanent
 tags:
-  - inbox
-  - atomized
   - ebpf
 ---
 

@@ -4,10 +4,9 @@ source: ai-assisted
 distilled-from: claude-code-session
 session-date: {{date}}
 model: {{model}}
-status: draft
+status: permanent
 tags:
-  - inbox
-  - distilled
+  - {{topic_tag}}
 ---
 
 # {{title}}
@@ -19,9 +18,7 @@ tags:
 - {{why_worth_recording}}
 - {{when_holds_or_not}}
 
-## 相關連結（草擬）
+## 相關連結
 
 - [[{{candidate_link_1}}]]
 - [[{{candidate_link_2}}]]
-
-> AI 草稿提示：上述 wikilinks 為 AI 推測，請核定後保留有效者。
