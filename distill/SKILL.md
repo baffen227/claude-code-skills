@@ -39,6 +39,7 @@ description: 在 Claude Code 對話中萃取核心知識洞見，產出符合 St
 - 任務追蹤 (歸 Notion 或 tasks.md)
 - 純情緒回饋 (不算知識洞見)
 - vault 內已有同主題筆記的重複內容 (先 grep `~/Obsidian/Notes/` 或查 `Notes/INDEX.md` 同主題組；高度雷同就不另開新檔，改建議使用者補寫進既有筆記)
+- **純轉抄公開穩定參考** — TRPL、官方文件、Pro Git 這種一句話就 grep 得到的課本知識，Claude 直接搜、或讓 NotebookLM 讀原書更快更新；只收你的決策、審過的立場、跨源綜合、專案脈絡 (見 knowledge-os CLAUDE.md「筆記必要性閘門」)
 
 **找不到任何洞見時**:
 

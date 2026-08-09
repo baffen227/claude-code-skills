@@ -96,6 +96,7 @@ obsidian tag name=<tag> verbose | \
 - 步驟性內容 (例: 「下載、編譯、安裝 libbpf」) → 留為原 References
 - 純程式碼範例 (例: 「chapter2/hello.bpf.c」) → 留為原 References
 - 過大概念 (例: 「eBPF 完整生態」) → 強制再拆
+- 純轉抄公開穩定參考的課本原子 (例: TRPL 語法、Pro Git 操作、官方文件轉述) → Claude 直接搜或 NotebookLM 讀原書更快;只萃取帶判斷、綜合、專案脈絡的概念 (見 knowledge-os CLAUDE.md「筆記必要性閘門」)
 
 ### 2.2 去重比對
 
