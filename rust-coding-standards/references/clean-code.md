@@ -284,13 +284,15 @@ fn parse_frame(data: &[u8]) -> CellVoltage {
 
 **Rationale**: Safety-critical embedded code 在 library path 不該 panic。Binary 入口的 `unwrap` 可以接受，因為失敗等同 hardware misconfiguration，沒救了。
 
+**nova 補充 (2026-08-09)**: embassy task 的 spawn `.expect()` 可接受 — 條件是結構上不可能失敗(每個 task 恰 spawn 一次,pool 不會耗盡)且註解論證為什麼。見 nova-conventions.md CON-2(PR #3 Eden 認可)。
+
 ---
 
 ### CC14: Mask + Cast 優於 `#[allow(cast_possible_truncation)]`
 
 **Rule**: Narrowing 整數 cast (例如 `u32 → u16`、`u16 → u8`) 若目的是取低 N bit,用 `(x & MASK) as SmallerType` 的 mask + cast 寫法,不用 `#[allow(clippy::cast_possible_truncation)] + x as SmallerType`。
 
-**Trigger**: workspace `pedantic` / `nursery` deny-level 擋住 `as` narrowing cast,準備加 local `#[allow]` 時。
+**Trigger**: 寫下任何 narrowing `as` cast 時,lint 組態擋不擋都適用 — nova 的關卡是 `-D warnings`(不含 pedantic),`as` 截斷不會被 clippy 抓,更要靠 review 把關。窄化前先在寬型別驗證、旁邊配 const assert,配套見 nova-conventions.md BND-4 / BND-5。
 
 **DO**:
 ```rust

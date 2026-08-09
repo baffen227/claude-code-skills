@@ -1,6 +1,8 @@
 # Design: Coding Standards + Dual-Review Skill
 
 > **SUPERSEDED (2026-04-18)**: 本文件中提及的 custom `codex-reviewer` skill 已整個移除 (symlink + repo)。以後所有 Codex review 都走 OpenAI 官方 codex plugin (`/codex:review` / `/codex:adversarial-review` / `/codex:rescue`)。見 `CLAUDE.md` §Cross-AI Review Workflow。本文件保留作歷史快照。
+>
+> **路徑警語 (2026-08-09)**: 檔內引用的 repo 路徑(`docs/coding-standards/`、`DEVELOPMENT_SOP.md`、CLAUDE.md 行號)指向已解散的 can_integration_testing 佈局,勿照路徑操作。Canonical 規則見同目錄 `clean-code.md` / `minimalism.md` / `modularity.md`;nova 時代的增補見 `nova-conventions.md`。
 
 **Date**: 2026-04-08
 **Status**: Draft — pending user review

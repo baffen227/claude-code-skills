@@ -39,6 +39,15 @@ use crate::bin::ti_001::TestConfig;
 [Entity] protocol.rs, j1939.rs, crc.rs
 ```
 
+**nova 對映 (2026-08-09)**:
+```
+[Adapter]  bins/firmware-*, tests/on-target-*
+    ↓ depends on
+[Use Case] tasks, coordinator-core
+    ↓ depends on
+[Entity]   adlink-protocol, model, protocol
+```
+
 **Rationale**: Clean Architecture 的 Dependency Rule — inner layer 是穩定的 business rule，outer layer 是容易變動的 delivery mechanism。反向依賴會讓 inner layer 無法獨立測試或重用。
 
 ---

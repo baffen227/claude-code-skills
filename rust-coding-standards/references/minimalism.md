@@ -76,6 +76,8 @@ if sa > 0xFF {
 
 **Rationale**: Safety-critical code 的原則是處理所有真正會發生的 error path，不是想像得到的所有 path。Phantom error path 讓 code 變複雜，也會誤導 reviewer。
 
+**界線修訂 (2026-08-09, nova PR #63)**: 「impossible condition」只指型別系統或建構流程已排除的情況(`u8` 不會 > 0xFF)。前置條件是否違反取決於 runtime 資料時(例:寫入長度是否跨 flash page),那不是 impossible condition;違反後果是靜默資料毀損時,必須 runtime enforce — silent-failure 條款壓過本條。nova 一度以本條豁免 `page_program` 的跨頁檢查,後被 review 推翻。見 nova-conventions.md BND-1 / BND-2。
+
 ---
 
 ### MIN-4: No Wrapper Types Without Justification
@@ -102,6 +104,8 @@ struct Voltage(u8); // no validation, no API restriction
 ```
 
 **Rationale**: 沒 invariant 的 newtype 只增加 boilerplate (`.0` access、`From` impl)，不帶來 safety benefit。
+
+**補充 (2026-08-09, nova PR #56)**: newtype 的 invariant 要驗到語意層 — 「合法編碼」與「合法語意」是兩個問題(`SpmID` 1..=0xF 可編碼,但只有 1..=12 有 grid 位置),各在該驗的邊界驗。見 nova-conventions.md BND-3。
 
 ---
 

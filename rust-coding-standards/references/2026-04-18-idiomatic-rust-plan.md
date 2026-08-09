@@ -1,7 +1,7 @@
 ---
 audience: dual
 version: v1.0
-status: living-template
+status: historical — FW-8 paused (2026-08-09 標註)
 coupling:
   - target: adlink-can anchor design spec
     path: docs/superpowers/specs/2026-05-28-idiomatic-rust-anchor-design.md
@@ -14,6 +14,8 @@ coupling:
 ---
 
 # Idiomatic Rust 最佳實踐計畫 (2026-04-18)
+
+> **HISTORICAL (2026-08-09)**: FW-8 在 adlink-can 推到 Phase 1 部分完成(`rust-quality-check.sh` + `check-api-maturity-tags.sh` 落地)即隨該 repo 退場停擺;Phase 2–4 未執行,nova 無任何 FW-8 commit。nova 的 coding standards 正本走團隊 Wiki co-design。本檔勿當 active plan 執行,僅作點子庫(API maturity tag、審查分層、cross-task bug routing 等概念可回收)。Frontmatter coupling 指向的 adlink-can 已軟退役,同步約束失效。
 
 > **For agentic workers**: 本檔是計畫與設計合併,不另附獨立設計文件。Phase 執行時建議搭配 `superpowers:executing-plans` skill 一條一條跑。
 
@@ -701,6 +703,7 @@ v0.7 plan 內 §v0.8 暫存 12 條實證心得已於 v1.0 abstraction sweep 全�
 | R2-P2-3 | Crosswalk 缺 Task 2.5 / 3.5 row;Task 2.7 時序循環 | P2 | §權威性 crosswalk 補 Task 2.5 / 3.5 列 + day 0 inline authoritative;Task 2.7 降為 follow-up 整合 | fixed | 無 |
 | R2-P2-4 | MIN-1 vs future-proof 建議長期拉扯;缺 API maturity tag | P2 | §API maturity tag 新增 (3 tag);Task 2.1 MUST / SHOULD 綁 tag | fixed | 每個 `pub` item 的 tag 選擇需 reviewer 判斷,預設 `workspace-internal pub` 並可升級;待 Task 2.6 試跑第一個試跑 PR 時驗證 |
 | R2-P2-5 | Send / Sync (3x) + ISR handoff (2x) + static / executor ownership (3x) 在多個 task 重複計算 | P2 partial | §Ownership concern canonical home 新增 matrix;**未** merge Task 2.5 (理由:heapless / buffer sizing / feature gating 是 Task 2.5 獨有 concern,不該合併) | fixed (依設計為 partial) | 無 |
+| R2-P2-6 | Trigger example path 不一致 (`<library-crate>/src/...` vs `<library-crate-paths>`) | P2 | 全檔統一 `<library-crate-paths>` / `<binary-crate-paths>` path | fixed | 無 |
 
 ---
 
@@ -762,4 +765,3 @@ Round 3-6 findings 的 owning concern 分佈:
 CLAUDE.md `feedback_consensus_loop_escalation` 原則: 「Codex adversarial review 跑到後幾輪如果只抓...sweep 漏洞,就跳出迴圈」。當前模式符合此定義,故跳出迴圈。
 
 若 `<sync-reviewer>` 核可,v0.7 即為 Phase 5.1 final draft;否則 `<sync-reviewer>` 可推翻此判定,繼續 round 7。
-| R2-P2-6 | Trigger example path 不一致 (`<library-crate>/src/...` vs `<library-crate-paths>`) | P2 | 全檔統一 `<library-crate-paths>` / `<binary-crate-paths>` path | fixed | 無 |
