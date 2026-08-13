@@ -1,11 +1,11 @@
 ---
 name: rust-coding-standards
-description: Use when reviewing or writing Rust code in BTBU firmware projects — nova (adlink-protocol / coordinator-core / tasks / self-test / bsp-* / firmware bins, incl. justfile and bench gate scripts) or sibling BTBU embedded Rust repos — or when a review finding needs canonical rule wording (CC / MIN / MOD, or nova-era ERR / BND / CON / FFI / NAME / DOC / TEST / GATE / REV covering snafu error conventions, fail-closed design, const-assert discipline, no_std / embassy patterns, STL / FFI rules, gate-script hardening).
+description: Use when reviewing or writing Rust code in any project, or when a review finding needs canonical rule wording with rule IDs. Generic sets CC (clean code) / MIN (minimalism) / MOD (modularity) apply to all Rust code; nova-era sets ERR / BND / CON / FFI / NAME / DOC / TEST / GATE / REV (snafu error conventions, fail-closed design, const-assert discipline, no_std / embassy patterns, STL / FFI rules, gate-script hardening) bind BTBU firmware repos — nova (adlink-protocol / coordinator-core / tasks / self-test / bsp-* / firmware bins, incl. justfile and bench gate scripts) and siblings — and serve as reference elsewhere.
 ---
 
-# Rust Coding Standards — BTBU Firmware
+# Rust Coding Standards
 
-本 skill 收 BTBU 韌體 Rust 撰碼準則全文,是各專案 `CLAUDE.md` 紅線引用的 cold path 正本,也是 dual-review 時 Agent B / Codex 引規則的 canonical 依據。
+本 skill 收個人 Rust 撰碼準則全文,適用所有 Rust 專案:CC / MIN / MOD 三組通用;`nova-conventions.md` 是 BTBU 韌體 (nova 與 sibling repos) 的紅線,其他專案當參考。也是各專案 `CLAUDE.md` 紅線引用的 cold path 正本、dual-review 時 Agent B / Codex 引規則的 canonical 依據。
 
 ## 定位 (2026-08-09 更新)
 
@@ -15,7 +15,7 @@ description: Use when reviewing or writing Rust code in BTBU firmware projects �
 
 ## When this skill fires
 
-- 在 nova 寫或 review Rust code(含 justfile recipe 與 bench 工具腳本)
+- 在任何專案寫或 review Rust code(nova 含 justfile recipe 與 bench 工具腳本)
 - Reviewer 要 cite 具體規則編號:CC1~14 / MIN-1~6 / MOD-1~5,或 nova-conventions 的 ERR / BND / CON / FFI / NAME / DOC / TEST / GATE / REV
 - Code review finding 需要 canonical 措辭與出處
 - 新專案要匯入 coding-standards 參考
@@ -31,9 +31,9 @@ description: Use when reviewing or writing Rust code in BTBU firmware projects �
 
 ## How to apply
 
-1. 選對層:函式形狀 / 範圍 / 分層 → CC / MIN / MOD;error、契約、no_std、FFI、測試、關卡 → `nova-conventions.md` 對應段
+1. 選對層:函式形狀 / 範圍 / 分層 → CC / MIN / MOD;error、契約、no_std、FFI、測試、關卡 → `nova-conventions.md` 對應段。非 BTBU 專案引 nova-conventions 時以「建議 + 出處」提出,不當紅線——條文蒸餾自 nova,snafu / embassy 這類選型慣例未必適用他處
 2. 引規則給編號 + canonical 措辭(例:「BND-1: 靜默毀損類契約必須 runtime enforce」),出處在條目內(PR 編號 / commit sha)
-3. 三層 SOT 都查無依據的判斷,標「reviewer judgment」,不冒充有據(全域 CLAUDE.md 的 Rust Code Review SOT 階層)
+3. 三層 SOT 都查無依據的判斷,標「reviewer judgment」,不冒充有據(SOT 階層見 `~/.claude/rules/rust-review-sot.md`,碰 Rust 檔自動載入)
 4. 回頭確認專案 `CLAUDE.md` 紅線摘要與本 skill 對齊
 
 ## Provenance
