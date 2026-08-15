@@ -12,6 +12,7 @@
 | [zettel-atomizer](./zettel-atomizer/) | 把 vault 內單一主題 tag 的素材聚合成 batch，萃取成原子筆記 + 結構筆記直落 `Notes/` 永久區 | `/zettel-atomize <tag>` |
 | [rust-coding-standards](./rust-coding-standards/) | 審查或撰寫 BTBU 韌體 Rust 時載入完整的 clean-code / minimalism / modularity 紀律 | 「review Rust」、CLAUDE.md red-line 引用 clean-code / minimalism / modularity |
 | [dual-review](./dual-review/) | 實作完成後的雙重品質審查：先 Agent B（Claude subagent）再 Codex 對抗審查 | `/dual-review`、程式碼改動後 |
+| [wrapup](./wrapup/) | session 收尾儀式一鍵化：多 repo commit/push、逐項報 gate exit code、ClickUp 更新、產出經機器驗證閘的下次交接 prompt | `/wrapup`、「收尾」、「wrap up」 |
 
 ## 快速安裝
 
@@ -248,6 +249,25 @@ rust-coding-standards/
 ```
 dual-review/
 └── SKILL.md                 # 雙重審查流程 + 確認機制
+```
+
+---
+
+### wrapup
+
+session 收尾儀式一鍵化。逐一盤點本 session 動過的 repo（commit/push）、跑該 repo 的 gate set 逐項報 exit code、更新 ClickUp 票、（有設計決策時）代擬 Wiki/docs 頁，最後產出下次 session 的交接 prompt。commit、push、ClickUp 每步都先列出要做什麼、等使用者點頭才動手。
+
+核心是**交接驗證閘**：交接 prompt 尾端帶 `wrapup-verify` 機器區塊，`scripts/verify-handoff.sh` 逐項驗三要件——(i) 各 repo 的 commit hash 用 `git rev-parse` 實查存在、(ii) 各 gate 的 exit code、(iii) 未竟事項清單。缺一腳本 exit 非零，skill 不得回報「收尾完成」。這一閘擋未查證斷言跨 session 傳播（概念借自 swarm-forge 的機器驗證出站閘）。交接 prompt 落 repo（`tasks.md` 或 `docs/`），不落 `/tmp`。
+
+**觸發**：`/wrapup`、「收尾」、「wrap up」，或準備宣告 session 完成時。
+
+**檔案結構**
+
+```
+wrapup/
+├── SKILL.md                     # 收尾流程 + 交接驗證閘 + degrade 規則
+└── scripts/
+    └── verify-handoff.sh        # 機器驗證出站閘（三要件檢查）
 ```
 
 ---

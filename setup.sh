@@ -14,7 +14,7 @@ OUTPUT_STYLES_DIR="$HOME/.claude/output-styles"
 
 mkdir -p "$SKILLS_DIR" "$OUTPUT_STYLES_DIR"
 
-SKILLS=(uv-python-setup classical-chinese-rules distill zettel-atomizer rust-coding-standards dual-review)
+SKILLS=(uv-python-setup classical-chinese-rules distill zettel-atomizer rust-coding-standards dual-review wrapup)
 
 # Output styles managed by this repo. Format: <repo-relative-source>:<filename-in-output-styles-dir>
 OUTPUT_STYLES=(
