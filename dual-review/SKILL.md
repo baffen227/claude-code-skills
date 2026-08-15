@@ -88,11 +88,12 @@ Replace `{project_root}` with actual working directory, `{git_diff}` with diff o
 ### 3.3 Iterate
 
 1. Apply 同意的 fixes
-2. Re-spawn Agent B on updated diff
-3. 重複直到 Agent B 找不到 new issues (共識達成)
-4. 每輪顯示: `Round N complete: M new issues found`
-5. 使用者可隨時喊停
-6. **Hard requirement**: 所有 P1 必須 resolved
+2. **每個 fix 套用後，立即 spawn 一個 fresh agent 只審該 fix 的 diff**，不等整輪 re-review——round-1 fix 曾帶進比原 bug 更糟的 P1 regression (2026-07〜08 insights 報告實例)
+3. Re-spawn Agent B on updated diff (整輪)
+4. 重複直到 Agent B 找不到 new issues (共識達成)
+5. 每輪顯示: `Round N complete: M new issues found`
+6. 使用者可隨時喊停
+7. **Hard requirement**: 所有 P1 必須 resolved
 
 ## 4. Stage 2: Codex Adversarial Review
 
@@ -105,6 +106,8 @@ Replace `{project_root}` with actual working directory, `{git_diff}` with diff o
 > Focus on finding blind spots that the implementation author and Agent B reviewer
 > may have BOTH missed. Look for: implicit assumptions, edge cases in CAN protocol
 > handling, CRC scope errors, timeout logic, startup race conditions.
+
+**Codex 空輸出/未收完**: 改有界重試——最多 3 次 re-poll，每次遵守既有 codex 安全規則: 指令帶 `timeout 120`，超過 30 秒無輸出即視為卡住並終止 (規則出處: knowledge-os CLAUDE.md「Codex CLI 安全注意事項」，OOM 事故換來的)。3 次仍無輸出就停，回報「Codex 無輸出」，交使用者裁決重跑或跳過。禁止無上限輪詢。
 
 ### 4.2 Codex Consensus Loop
 
