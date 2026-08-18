@@ -32,7 +32,9 @@ cd ~/Projects/claude-code-skills
 
 ### 1. 全域 `~/.claude/CLAUDE.md`
 
-本 repo 備有一份模板: [`global-claude-md-template.md`](./global-claude-md-template.md)。新機器上:
+**用 [`baffen227/dotfiles`](https://github.com/baffen227/dotfiles) 部署的機器跳過這步**——`~/.claude/CLAUDE.md` 由該 repo 的 `bootstrap.sh` 以 Stow symlink 部署（SOT 在其 `common/.claude/CLAUDE.md`）。不要再複製模板過去：會蓋掉 symlink、讓內容與 SOT 分岔。
+
+沒部署 dotfiles 的機器，本 repo 備有一份模板: [`global-claude-md-template.md`](./global-claude-md-template.md):
 
 ```bash
 cp ~/Projects/claude-code-skills/global-claude-md-template.md ~/.claude/CLAUDE.md
@@ -40,8 +42,6 @@ cp ~/Projects/claude-code-skills/global-claude-md-template.md ~/.claude/CLAUDE.m
 ```
 
 這個檔案的作用是讓每個 Claude Code session 在啟動時就知道此機器上啟用了什麼 skill/style 組合、有哪些使用提醒。沒有它 Claude 不會主動提醒你「為什麼繁中回覆還是 AI 腔」這類設定問題。
-
-不納入 setup.sh 自動安裝的原因: 全域 CLAUDE.md 可能有機器特定的內容 (如硬體路徑、偏好的工具組合)，強制覆寫有風險。手動複製後再 HITL 編輯最安全。
 
 ### 2. `classical-chinese-rules` skill 的思果筆記（已收進 repo，無需額外準備）
 
@@ -62,8 +62,9 @@ vault 裡 `~/Obsidian/Clippings/Literature note of the book《翻譯研究》.md
 git clone https://github.com/baffen227/claude-code-skills.git ~/Projects/claude-code-skills
 cd ~/Projects/claude-code-skills && ./setup.sh
 
-# 2. 複製全域 CLAUDE.md 模板
-cp global-claude-md-template.md ~/.claude/CLAUDE.md
+# 2. 全域 CLAUDE.md：dotfiles 機器由其 bootstrap.sh symlink 部署，跳過本步；
+#    非 dotfiles 機器才複製模板
+# cp global-claude-md-template.md ~/.claude/CLAUDE.md
 
 # 3. classical-chinese-rules 的思果筆記已隨 repo 附帶 (references/翻譯研究筆記.md)，無需另外準備 vault
 

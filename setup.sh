@@ -2,7 +2,7 @@
 # Install claude-code-skills by creating symlinks in ~/.claude/skills/
 #
 # Usage:
-#   git clone https://github.com/bagfen/claude-code-skills.git
+#   git clone https://github.com/baffen227/claude-code-skills.git
 #   cd claude-code-skills
 #   ./setup.sh
 
