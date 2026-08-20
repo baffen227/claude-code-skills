@@ -44,11 +44,20 @@ Project: STM32H563 Master Board CAN bus integration testing.
 Safety: IEC 60730-1 Annex H Class B.
 
 Read these coding standards before reviewing:
-- {project_root}/docs/coding-standards/minimalism.md
-- {project_root}/docs/coding-standards/modularity.md
-- {project_root}/docs/coding-standards/clean-code.md
+- ~/.claude/skills/rust-coding-standards/references/clean-code.md
+- ~/.claude/skills/rust-coding-standards/references/minimalism.md
+- ~/.claude/skills/rust-coding-standards/references/modularity.md
+- ~/.claude/skills/rust-coding-standards/references/nova-conventions.md
 
 Review the following changes against ALL rules in those documents.
+
+Additionally run a FRESH-READER pass (nova-conventions DOC-10): assume you
+have NOT read any design spec, have no issue-tracker access, and no chip
+reference manual at hand. Every name, acronym, and citation in the diff must
+stand on its own — flag anything a new teammate could not decode from the
+diff plus the repo alone (undefined acronyms, spec-jargon leaked into API
+names, comments citing internal planning coordinates, mechanism-level calls
+that hide their intent).
 
 For each issue found, classify severity:
 - P1 (must fix): Violates a rule or introduces defect
@@ -65,7 +74,9 @@ Output format:
 | # | File:Line | Rule | P | Issue | Suggested Fix |
 ```
 
-Replace `{project_root}` with actual working directory, `{git_diff}` with diff output, `{file_list}` with changed file list.
+Replace `{git_diff}` with diff output, `{file_list}` with changed file list.
+(Coding standards moved to the rust-coding-standards skill 2026-05-20; the
+old `{project_root}/docs/coding-standards/` path is gone.)
 
 ### 3.2 Evaluate Findings
 
@@ -118,7 +129,21 @@ Replace `{project_root}` with actual working directory, `{git_diff}` with diff o
 - 使用者可指定 rounds 或隨時喊停
 - 所有 P1 必須 resolved
 
-## 5. Stage 3: Final Summary
+## 5. Stage 3: 教訓回收 (持續累積)
+
+Summary 之前問一次:本輪 findings (含使用者在 review 過程中親自提出的重構要求) 裡,有沒有「lint / gate 抓不到、未來會再犯」的新教訓?典型是 taste 層:命名、術語、縮寫、註解密度、文件分層。
+
+有就蒸餾成條文,append 進
+`~/.claude/skills/rust-coding-standards/references/nova-conventions.md`
+對應系列 (NAME / DOC / 其他),規則:
+
+- 一條教訓 = 一個可覆核出處 (PR 編號或 commit sha)
+- 已有條文涵蓋的不重複收,必要時在既有條文補出處
+- 同步更新該 skill SKILL.md 的條文計數,commit skills repo (跨機同步靠它)
+
+這一步是條文庫保持活水的機制——出處實例: PR #90 七輪可讀性重構收成 NAME-9~11、DOC-8~10 (2026-08-20)。
+
+## 6. Stage 4: Final Summary
 
 ```markdown
 ### Dual Review Summary

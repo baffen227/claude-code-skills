@@ -2,7 +2,7 @@
 
 **Scope**: nova(BTBU 產品韌體 repo)與後續 BTBU 嵌入式 Rust 專案
 **Status**: 個人 agent enforcement 層,非團隊 SOT。團隊正本候選是 Wiki〈she-bms Firmware — Coding Standards (co-design draft)〉。本檔規則未經 co-design 拍板;引用到隊友的程式碼時,以「建議 + 出處」提出,不當紅線。
-**Origin**: 2026-08-09 蒸餾自 nova PR #1–#73 全部 review 意見(181 則 inline comments)、review-fix commits,以及 FW-211/212/215、FW-164 等工作項紀錄。出處標 PR 編號或 commit sha,皆可在 GitHub 覆核。
+**Origin**: 2026-08-09 蒸餾自 nova PR #1–#73 全部 review 意見(181 則 inline comments)、review-fix commits,以及 FW-211/212/215、FW-164 等工作項紀錄。出處標 PR 編號或 commit sha,皆可在 GitHub 覆核。**本檔是活文件**:重大 review 的 taste 層教訓(lint/gate 抓不到的命名、術語、註解、文件分層)持續追加 — 2026-08-20 自 PR #90 七輪可讀性重構補入 NAME-9~11、DOC-8~10;回收動作掛在 dual-review skill 的收尾步驟。
 **Cross-references**: clean-code.md (CC1~CC14)、minimalism.md (MIN-1~6)、modularity.md (MOD-1~5)
 
 三份舊 canonical 檔管「函式怎麼寫」;本檔收 nova 實戰長出的新層:error 慣例、契約進碼、no_std 紀律、FFI/vendor 紀律、測試與建置關卡。條目按主題分組,ID 與 CC/MIN/MOD 不重疊。
@@ -230,6 +230,21 @@ discriminant 一處定義 + `self as u8`,取代手工 nibble 對映;反向能用
 struct 欄位收 private、getter 標 `const`(PR #33 `ClockLimits`;注意封裝擋「外部亂建」但擋不住「內部算錯」,use-time 檢查仍有位置)。API 遷移期舊符號標 deprecated 留線索,不直接刪(PR #62、#67)。但 `#[deprecated]` 在 `-D warnings --all-targets` 下會對內部呼叫者連環爆 — 無呼叫者的遺留碼直接刪(見 DOC-5),deprecated 只用於還有 caller 的過渡。
 成對 API 型別要對稱:`from_grid` 收 `usize` 而 `to_grid` 回 `u8` 會逼兩端 cast — 陣列索引一律 `usize` 貫穿(PR #56 Jerry)。
 
+### NAME-9: spec 詞彙會鑄進 code — 命名在規劃期就要審
+
+實作 agent 忠實沿用 spec 術語(spec §8 的「settle」「marker」原樣進了 crate API),而 spec 的對抗式 review 只審機制不審詞彙,名字的問題一路活到 PR review 才爆。plan 定稿前對核心概念跑一次命名審查,判準:「這個詞給沒讀過 spec 的人看得懂嗎?」。概念名優先名值合一 — slot 叫 `SLOT_IN_PROGRESS`、值叫 `IN_PROGRESS`、判定叫 `is_in_progress`,一個詞貫穿到文件。
+出處: PR #90 `ac0db07`(settle→judge_last_boot、marker→IN_PROGRESS flag,review 期整組翻名)。
+
+### NAME-10: 函式名受詞完整;意圖名過不了誠實性測試就退回機制名
+
+`clear_in_progress` 缺受詞(clear 的是旗標,不是「進行中」這個狀態)→ `clear_in_progress_flag`。更高語意層的意圖名(如 `arm_hang_detection`)要先過誠實性測試:名字聲稱的效果若依賴函式外的條件才成立(hang 偵測 = 旗標 + IWDG armed 兩者;`dev-no-watchdog` build 下 set 了旗標也沒有偵測),名字就會在某些組態下說謊 — 退回誠實的機制名,意圖寫進 doc。重複的 slot+值配對收成具名 helper(`write_checked(SLOT_IN_PROGRESS, CLEARED)` → `clear_in_progress_flag()`),配對只存在 helper 內一處。
+出處: PR #90 `aa3831c`、`0c66081`。
+
+### NAME-11: crate alias 避開生態慣用縮寫
+
+`use failsafe_core as fs` 讓讀者先想到 file system。alias 不與慣用縮寫(fs / io / os / rt …)相撞,寧可長一點(`as failsafe`)。
+出處: PR #90 `aa3831c`。
+
 ---
 
 ## DOC — 註解與文件
@@ -270,6 +285,21 @@ PR #32 self-review 抓到三處錯註解,最毒的一種:錯的「理由」會�
 
 拒絕採納的意見,rationale 落在下一個 reviewer 看得到的地方(檔頭註解 / PR body)— 否則同一條會被反覆提出或被誤修(FW-215 TOCTOU 駁回理由寫進 `.sh` 檔頭)。
 出處: `1d0a674`。
+
+### DOC-8: 縮寫與暫存器旗標在每個 crate 首現處展開一次
+
+`IWDGRSTF` 裸用,沒 RM 在手的讀者無錨。每個獨立閱讀單位(crate)在縮寫首現處展開一次(全名、住哪個暫存器、誰設誰清),後續沿用短名。
+出處: PR #90 `f8c9d68`(bringup 與 failsafe-core 各定義一次)。
+
+### DOC-9: 註解不引內部規劃座標(spec §N / tracker-ID)
+
+「(spec §8)」「(FW-247)」對讀 code 沒有幫助 — 實質內容不在 diff 裡,座標也打不開。DOC-1 的強化:內部規劃文件的節號與 ClickUp tracker-ID 一律不進註解;歷史歸 commit message 與 PR。外部權威引用(RM0481 §、UM3267 §、errata 編號)後面接著它規定了什麼、是可覆核的事實出處 — 保留。
+出處: PR #90 `6b2258c`、`838484a`(Harry 拍板)。
+
+### DOC-10: 新讀者測試 — 收尾用「沒有 spec 的人」的眼睛掃 diff
+
+agent 寫 code 時 context 裡有 spec、tracker、RM,座標與縮寫自然流進註解,而 agent 模擬不出人類新讀者的無知。收尾自檢與 review 各跑一條 lens:「假裝你是沒有 spec、沒有 ClickUp 權限、手上沒有 RM 的新同事讀這個 diff — 每個名字、縮寫、引用都要能自立」。實證:PR #90 七輪可讀性重構全程 gates 綠 — 這一層 lint 全抓不到,只有這條 lens 能前移。
+出處: PR #90 `117a36c`〜`0c66081` 七輪重構總結。
 
 ---
 
