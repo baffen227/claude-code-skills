@@ -26,12 +26,13 @@ description: Use when reviewing or writing Rust code in any project, or when a r
 - `references/minimalism.md` — MIN-1~MIN-6(範圍控制、反過度設計;**MIN-3 有 2026-08 界線修訂**)
 - `references/modularity.md` — MOD-1~MOD-5(layer 圖含 nova 對映、依賴方向、抽取門檻)
 - `references/nova-conventions.md` — **nova 時代慣例與教訓 (2026-08-09)**:snafu error 慣例 (ERR-1~9)、契約進碼與編譯期防線 (BND-1~7)、no_std / embassy / 全域狀態 (CON-1~9)、FFI / vendor / 暫存器 (FFI-1~6)、命名增補 (NAME-1~11)、註解紀律 (DOC-1~10)、測試與驗證 (TEST-1~6)、建置關卡與工具腳本 (GATE-1~10)、review 工作流 (REV-1~5),共 73 條。蒸餾自 nova PR #1~#73 全部 review 意見與 FW-211/212/215、FW-164 工作項紀錄,每條附可覆核出處;活文件,重大 review 的 taste 層教訓持續追加 (2026-08-20 起,PR #90 補 NAME-9~11、DOC-8~10)
+- `references/team-embedded-guideline.md` — **團隊層 guideline snapshot (Eden 提供,2026-08-20 收檔)**:Firmware Wiki「專案結構與模組佈局規範 Part 0–IX + Coding Standards」的可貼用濃縮——六資料夾架構、模組佈局(mod.rs/error.rs/impls.rs)、newtype 物理量、blackboard 規則、共享狀態 primitive 對照表、分派與尺寸、PR checklist(§B8)、未拍板清單(§C)。正本在 Wiki;**檔頭列了與 nova 現況的三個已知衝突(workspace.lints / trait 邊界 vs co-design 紅線 / 目標態架構),引用前必讀**
 - `references/2026-04-08-coding-standards-dual-review-design.md` — dual-review 工作流設計史(SUPERSEDED;CC/MIN/MOD 編號體系的出生證明)
 - `references/2026-04-18-idiomatic-rust-plan.md` — idiomatic Rust 計畫(HISTORICAL;FW-8 停在 Phase 1,留作點子庫)
 
 ## How to apply
 
-1. 選對層:函式形狀 / 範圍 / 分層 → CC / MIN / MOD;error、契約、no_std、FFI、測試、關卡 → `nova-conventions.md` 對應段。非 BTBU 專案引 nova-conventions 時以「建議 + 出處」提出,不當紅線——條文蒸餾自 nova,snafu / embassy 這類選型慣例未必適用他處
+1. 選對層:函式形狀 / 範圍 / 分層 → CC / MIN / MOD;error、契約、no_std、FFI、測試、關卡 → `nova-conventions.md` 對應段;架構落點、模組佈局、共享狀態 primitive、協定模組切分 → `team-embedded-guideline.md`(團隊層,衝突註記先讀)。非 BTBU 專案引 nova-conventions 時以「建議 + 出處」提出,不當紅線——條文蒸餾自 nova,snafu / embassy 這類選型慣例未必適用他處
 2. 引規則給編號 + canonical 措辭(例:「BND-1: 靜默毀損類契約必須 runtime enforce」),出處在條目內(PR 編號 / commit sha)
 3. 三層 SOT 都查無依據的判斷,標「reviewer judgment」,不冒充有據(SOT 階層見 `~/.claude/rules/rust-review-sot.md`,碰 Rust 檔自動載入)
 4. 回頭確認專案 `CLAUDE.md` 紅線摘要與本 skill 對齊

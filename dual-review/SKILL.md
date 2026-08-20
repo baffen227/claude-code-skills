@@ -48,6 +48,10 @@ Read these coding standards before reviewing:
 - ~/.claude/skills/rust-coding-standards/references/minimalism.md
 - ~/.claude/skills/rust-coding-standards/references/modularity.md
 - ~/.claude/skills/rust-coding-standards/references/nova-conventions.md
+- ~/.claude/skills/rust-coding-standards/references/team-embedded-guideline.md
+  (team-level; READ ITS HEADER CONFLICT NOTES FIRST — the project CLAUDE.md
+  red lines and co-design boundaries override it; its §B8 checklist applies,
+  but do NOT flag existing code for not matching its target-state layout)
 
 Review the following changes against ALL rules in those documents.
 
