@@ -279,7 +279,8 @@ PR #32 self-review 抓到三處錯註解,最毒的一種:錯的「理由」會�
 ### DOC-6: 註解上收 item-level,不切割程式主體
 
 散落的行間註解整併成 enum / fn 的 doc comment(Eden:「讓 code 不會被過多 comment 給切割閱讀」)。量化實踐:PR #33 註解 318 行減到 243 行,長推導移去 Wiki,程式內只留沒有 gate 能抓的陷阱全文。每個 module 要有 `//!`;複製樣板時同步改敘述(PR #56 的 "UDS-lite" 殘留)。
-出處: PR #3、#33、#56。
+呼叫處註解不重複定義處 doc:函式做什麼的列舉歸定義處;呼叫處只留 call-site 特有的 why(為何在這個位置、為何帶這個 attribute)。簽名看不出的契約(如「可能不返回」)是定義處 doc 的責任,不是呼叫處的。
+出處: PR #3、#33、#56;PR #90 `ff76863`(pre_executor 呼叫處 6 行去重成 3 行,park 契約移回定義處)。
 
 ### DOC-7: 駁回 review finding 也要留書面理由
 
