@@ -2,7 +2,7 @@
 
 **Scope**: nova(BTBU 產品韌體 repo)與後續 BTBU 嵌入式 Rust 專案
 **Status**: 個人 agent enforcement 層,非團隊 SOT。團隊正本候選是 Wiki〈she-bms Firmware — Coding Standards (co-design draft)〉。本檔規則未經 co-design 拍板;引用到隊友的程式碼時,以「建議 + 出處」提出,不當紅線。
-**Origin**: 2026-08-09 蒸餾自 nova PR #1–#73 全部 review 意見(181 則 inline comments)、review-fix commits,以及 FW-211/212/215、FW-164 等工作項紀錄。出處標 PR 編號或 commit sha,皆可在 GitHub 覆核。**本檔是活文件**:重大 review 的 taste 層教訓(lint/gate 抓不到的命名、術語、註解、文件分層)持續追加 — 2026-08-20 自 PR #90 七輪可讀性重構補入 NAME-9~11、DOC-8~10;回收動作掛在 dual-review skill 的收尾步驟。
+**Origin**: 2026-08-09 蒸餾自 nova PR #1–#73 全部 review 意見(181 則 inline comments)、review-fix commits,以及 FW-211/212/215、FW-164 等工作項紀錄。出處標 PR 編號或 commit sha,皆可在 GitHub 覆核。**本檔是活文件**:重大 review 的 taste 層教訓(lint/gate 抓不到的命名、術語、註解、文件分層)持續追加 — 2026-08-20 自 PR #90 七輪可讀性重構補入 NAME-9~11、DOC-8~10;2026-08-27 自 FW-247 ECC 收帳 dual-review 四輪(`a6ab28d`)補入 FFI-7、GATE-11;2026-08-28 自同票上板補入 TEST-7;回收動作掛在 dual-review skill 的收尾步驟。
 **Cross-references**: clean-code.md (CC1~CC14)、minimalism.md (MIN-1~6)、modularity.md (MOD-1~5)
 
 三份舊 canonical 檔管「函式怎麼寫」;本檔收 nova 實戰長出的新層:error 慣例、契約進碼、no_std 紀律、FFI/vendor 紀律、測試與建置關卡。條目按主題分組,ID 與 CC/MIN/MOD 不重疊。
@@ -186,6 +186,11 @@ CMSIS 註解說 reset 後 HSI 64 MHz — 前提是跑過 `SystemInit`,而 cortex
 
 ---
 
+### FFI-7: 硬體保護關閉的視窗只准直線 volatile 存取,反組譯核
+
+關 ECC、解寫保護這類視窗裡,任何 stack 寫入都是未受保護的寫入(ECC 關著時寫入不產生 ECC,開回來一讀就是位址不相干的雙錯)。視窗內不得有呼叫、log、assert — `defmt::assert_eq!` 會把運算元壓進 `[sp]`,inline(always) 的 helper 一 assert 就破功。做法:helper 只回傳讀回值,判斷移到視窗外;持視窗的函式 `#[inline(never)]` 留符號;關卡是反組譯——兩個控制暫存器 store 之間不得出現 `[sp` store。
+出處: `a6ab28d`(FW-247 ECC 注錯,round 2 反組譯抓到 `strb.w [sp,#0x18]`)。
+
 ## NAME — 命名與 API 形狀
 
 CC3 的 nova 增補。兩個成立的 push back 案例說明:命名意見可以用具體理由拒絕。
@@ -233,7 +238,7 @@ struct 欄位收 private、getter 標 `const`(PR #33 `ClockLimits`;注意封裝�
 ### NAME-9: spec 詞彙會鑄進 code — 命名在規劃期就要審
 
 實作 agent 忠實沿用 spec 術語(spec §8 的「settle」「marker」原樣進了 crate API),而 spec 的對抗式 review 只審機制不審詞彙,名字的問題一路活到 PR review 才爆。plan 定稿前對核心概念跑一次命名審查,判準:「這個詞給沒讀過 spec 的人看得懂嗎?」。概念名優先名值合一 — slot 叫 `SLOT_IN_PROGRESS`、值叫 `IN_PROGRESS`、判定叫 `is_in_progress`,一個詞貫穿到文件。
-出處: PR #90 `ac0db07`(settle→judge_last_boot、marker→IN_PROGRESS flag,review 期整組翻名)。
+出處: PR #90 `ac0db07`(settle→judge_last_boot、marker→IN_PROGRESS flag,review 期整組翻名)。;`a6ab28d`(`reconcile` 改 `judge_flags` 後,bin Cargo.toml feature doc 與另一 crate 的 doc 仍寫 reconcile — 一詞一義要掃到每個提到它的文件)
 
 ### NAME-10: 函式名受詞完整;意圖名過不了誠實性測試就退回機制名
 
@@ -338,6 +343,11 @@ erase 後逐 byte blank-check(寫保護下 SE 無聲失效,WIP 照樣清);progra
 
 ---
 
+### TEST-7: 偵測器先用注錯證明它會叫,再信它的「乾淨」
+
+「讀旗標 = 0」在沒看過旗標 = 1 之前不是證據。FW-247 ECC 收帳寫完、四輪 review、Step 2 兩次 PASS,旗標從頭到尾乾淨——注錯做了五種變體也乾淨,直到 `DEIE` 開了才發現這顆晶片的 `MxISR` 只在 IE 開著時 latch,之前一整天的「乾淨」全是盲的,而且 `SEIE` 沒開時 SEC 校正照做、不吭聲。安全機制的驗收順序是:先造一個它該抓到的錯、看它抓到,才開始信它的 clean;板上做不到就至少寫進 runbook 當未驗項,不寫「PASS」。
+出處: PR #105 runbook Step 3 實機記錄(2026-08-28)。
+
 ## GATE — 建置關卡與工具腳本
 
 韌體交付物包含 bench 工具(Python / shell / justfile),它們與 Rust 同標準受 review。FW-215 五輪 review 全在這層。
@@ -394,6 +404,11 @@ cspell 本機紅 CI 綠 → 先查 `cspell --version` 字典版本差。doc comm
 
 ---
 
+### GATE-11: 必須在任何 Rust 跑之前成立的記憶體前提,落在 reset handler
+
+「每個 RAM 字先 word 寫過才准讀 / sub-word 寫」這類前提,Rust 端的填零迴圈蓋不到自己與呼叫者的 frame,也蓋不到自己的 log — 兩輪 review 各抓到一個 P1 後才收斂。正解是 cortex-m-rt 的 `zero-init-ram`(reset handler 在 `.data` 複製前 `stm` 整段 RAM);對應關卡兩層:`cargo tree -e features` 驗 resolved feature 沒被丟,`memory.x` `ASSERT` 釘 RAM 上界(feature 開著時越界會在 reset handler 裡 BusFault、無 log)。artifact 級的 objdump 判準寫進 runbook,工具鏈允許時再升關卡。
+出處: `a6ab28d`(FW-247 ECC 收帳;RM0481 §6.3.2 sub-word 寫入是 RMW)。
+
 ## REV — review 工作流慣例
 
 ### REV-1: 大改動拆 stacked PR
@@ -414,7 +429,7 @@ cspell 本機紅 CI 綠 → 先查 `cspell --version` 字典版本差。doc comm
 ### REV-4: 對抗式第二視角有實質產出
 
 表位址驗證、decoy regex 繞過、rc_w0 RMW、cleanup 只跑成功路徑 — 全是第一 reviewer 白紙黑字說「安全」或連續多輪沒看到的地方。修 bug 本身會引入新 bug(clock.rs 四輪連環),安全關鍵碼每次修正都重新過模擬 / 掃描,不能只驗原缺陷。
-出處: FW-215、FW-211 clock.rs。
+出處: FW-215、FW-211 clock.rs;`a6ab28d`(round 1 把零迴圈搬到 boot 最前,round 2 反組譯證明它蓋不到自己的 frame — 換機制的修正要有自己的 fresh review)。
 
 ### REV-5: 負面斷言要查內容,不查標題
 
