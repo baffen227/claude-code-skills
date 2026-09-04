@@ -2,7 +2,7 @@
 
 **Scope**: nova(BTBU 產品韌體 repo)與後續 BTBU 嵌入式 Rust 專案
 **Status**: 個人 agent enforcement 層,非團隊 SOT。團隊正本候選是 Wiki〈she-bms Firmware — Coding Standards (co-design draft)〉。本檔規則未經 co-design 拍板;引用到隊友的程式碼時,以「建議 + 出處」提出,不當紅線。
-**Origin**: 2026-08-09 蒸餾自 nova PR #1–#73 全部 review 意見(181 則 inline comments)、review-fix commits,以及 FW-211/212/215、FW-164 等工作項紀錄。出處標 PR 編號或 commit sha,皆可在 GitHub 覆核。**本檔是活文件**:重大 review 的 taste 層教訓(lint/gate 抓不到的命名、術語、註解、文件分層)持續追加 — 2026-08-20 自 PR #90 七輪可讀性重構補入 NAME-9~11、DOC-8~10;2026-08-27 自 FW-247 ECC 收帳 dual-review 四輪(`a6ab28d`)補入 FFI-7、GATE-11;2026-08-28 自同票上板補入 TEST-7;回收動作掛在 dual-review skill 的收尾步驟。
+**Origin**: 2026-08-09 蒸餾自 nova PR #1–#73 全部 review 意見(181 則 inline comments)、review-fix commits,以及 FW-211/212/215、FW-164 等工作項紀錄。出處標 PR 編號或 commit sha,皆可在 GitHub 覆核。**本檔是活文件**:重大 review 的 taste 層教訓(lint/gate 抓不到的命名、術語、註解、文件分層)持續追加 — 2026-08-20 自 PR #90 七輪可讀性重構補入 NAME-9~11、DOC-8~10;2026-08-27 自 FW-247 ECC 收帳 dual-review 四輪(`a6ab28d`)補入 FFI-7、GATE-11;2026-08-28 自同票上板補入 TEST-7;2026-09-03 自 PR #113 Eden review 補入 DOC-11;回收動作掛在 dual-review skill 的收尾步驟。
 **Cross-references**: clean-code.md (CC1~CC14)、minimalism.md (MIN-1~6)、modularity.md (MOD-1~5)
 
 三份舊 canonical 檔管「函式怎麼寫」;本檔收 nova 實戰長出的新層:error 慣例、契約進碼、no_std 紀律、FFI/vendor 紀律、測試與建置關卡。條目按主題分組,ID 與 CC/MIN/MOD 不重疊。
@@ -306,6 +306,11 @@ PR #32 self-review 抓到三處錯註解,最毒的一種:錯的「理由」會�
 
 agent 寫 code 時 context 裡有 spec、tracker、RM,座標與縮寫自然流進註解,而 agent 模擬不出人類新讀者的無知。收尾自檢與 review 各跑一條 lens:「假裝你是沒有 spec、沒有 ClickUp 權限、手上沒有 RM 的新同事讀這個 diff — 每個名字、縮寫、引用都要能自立」。實證:PR #90 七輪可讀性重構全程 gates 綠 — 這一層 lint 全抓不到,只有這條 lens 能前移。
 出處: PR #90 `117a36c`〜`0c66081` 七輪重構總結。
+
+### DOC-11: 註解長度以「修 bug 的人、當下沒有 AI」為尺
+
+Eden:「記得寫 comments 是準備給人維運的時候讀的,想想修 Bug 的時候,你希望自己看到這邊留的是什麼,萬一當下用不了 AI 的話,你會期許這解釋要多長多精準。」預設 2–3 行;超過先想能不能畫圖(ASCII 佈局 / 時序圖可以),或搬去 spec / runbook 留路徑。「為什麼」留一句,「怎麼做」看 code,歷史進 commit message / PR body。agent 產註解慣性偏長(PR #105 註解 ~370 行砍到 ~190 行仍嫌長),這是硬限制不是品味。
+出處: PR #113 Eden review(`testsuite/on-target-stm32h5/memory.x` 7 行 → bank 圖 + 1 行,`e9c8c8c`,2026-09-03)。
 
 ---
 
