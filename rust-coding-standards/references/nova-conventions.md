@@ -2,7 +2,7 @@
 
 **Scope**: nova(BTBU 產品韌體 repo)與後續 BTBU 嵌入式 Rust 專案
 **Status**: 個人 agent enforcement 層,非團隊 SOT。團隊正本候選是 Wiki〈she-bms Firmware — Coding Standards (co-design draft)〉。本檔規則未經 co-design 拍板;引用到隊友的程式碼時,以「建議 + 出處」提出,不當紅線。
-**Origin**: 2026-08-09 蒸餾自 nova PR #1–#73 全部 review 意見(181 則 inline comments)、review-fix commits,以及 FW-211/212/215、FW-164 等工作項紀錄。出處標 PR 編號或 commit sha,皆可在 GitHub 覆核。**本檔是活文件**:重大 review 的 taste 層教訓(lint/gate 抓不到的命名、術語、註解、文件分層)持續追加 — 2026-08-20 自 PR #90 七輪可讀性重構補入 NAME-9~11、DOC-8~10;2026-08-27 自 FW-247 ECC 收帳 dual-review 四輪(`a6ab28d`)補入 FFI-7、GATE-11;2026-08-28 自同票上板補入 TEST-7;2026-09-03 自 PR #113 Eden review 補入 DOC-11;回收動作掛在 dual-review skill 的收尾步驟。
+**Origin**: 2026-08-09 蒸餾自 nova PR #1–#73 全部 review 意見(181 則 inline comments)、review-fix commits,以及 FW-211/212/215、FW-164 等工作項紀錄。出處標 PR 編號或 commit sha,皆可在 GitHub 覆核。**本檔是活文件**:重大 review 的 taste 層教訓(lint/gate 抓不到的命名、術語、註解、文件分層)持續追加 — 2026-08-20 自 PR #90 七輪可讀性重構補入 NAME-9~11、DOC-8~10;2026-08-27 自 FW-247 ECC 收帳 dual-review 四輪(`a6ab28d`)補入 FFI-7、GATE-11;2026-08-28 自同票上板補入 TEST-7;2026-09-03 自 PR #113 Eden review 補入 DOC-11;2026-09-21 自 PR #140 動工前 dual-review 補入 DOC-12;回收動作掛在 dual-review skill 的收尾步驟。
 **Cross-references**: clean-code.md (CC1~CC14)、minimalism.md (MIN-1~6)、modularity.md (MOD-1~5)
 
 三份舊 canonical 檔管「函式怎麼寫」;本檔收 nova 實戰長出的新層:error 慣例、契約進碼、no_std 紀律、FFI/vendor 紀律、測試與建置關卡。條目按主題分組,ID 與 CC/MIN/MOD 不重疊。
@@ -311,6 +311,11 @@ agent 寫 code 時 context 裡有 spec、tracker、RM,座標與縮寫自然流�
 
 Eden:「記得寫 comments 是準備給人維運的時候讀的,想想修 Bug 的時候,你希望自己看到這邊留的是什麼,萬一當下用不了 AI 的話,你會期許這解釋要多長多精準。」預設 2–3 行;超過先想能不能畫圖(ASCII 佈局 / 時序圖可以),或搬去 spec / runbook 留路徑。「為什麼」留一句,「怎麼做」看 code,歷史進 commit message / PR body。agent 產註解慣性偏長(PR #105 註解 ~370 行砍到 ~190 行仍嫌長),這是硬限制不是品味。
 出處: PR #113 Eden review(`testsuite/on-target-stm32h5/memory.x` 7 行 → bank 圖 + 1 行,`e9c8c8c`,2026-09-03)。
+
+### DOC-12: 「唯一」「只有一處」這類全稱宣稱,先窮舉再寫
+
+「`pet()` 只有一處」「唯一的呼叫者是 X」「沒有別處碰 Y」這種句子一錯,後面的推論整串跟著錯。PR #140 的 review log 09-18 寫「唯一的 `pet()` 在健康窗」,漏了開機保護期那一處;09-21 改稿據此推出「沒有 D12 時營運中也是 16 s」,實為約 21 s,一路帶進 grilling 與設計文件,到動工前 dual-review 才抓到。寫全稱宣稱之前先 grep 窮舉,把全部命中的 `file:line` 列在宣稱旁(「兩處:`:155`、`:171`」);列不出清單就不寫全稱。grep 要涵蓋多行寫法與巨集展開(FW-164 單行 grep 漏看多行巨集,誤判「查無 SPI5」)。註解、設計文件、review 回覆都適用。
+出處: PR #140 `e78608e`(F20、D12、R3 改寫,2026-09-21)。
 
 ---
 
