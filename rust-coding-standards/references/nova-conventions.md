@@ -2,7 +2,7 @@
 
 **Scope**: nova(BTBU 產品韌體 repo)與後續 BTBU 嵌入式 Rust 專案
 **Status**: 個人 agent enforcement 層,非團隊 SOT。團隊正本候選是 Wiki〈she-bms Firmware — Coding Standards (co-design draft)〉。本檔規則未經 co-design 拍板;引用到隊友的程式碼時,以「建議 + 出處」提出,不當紅線。
-**Origin**: 2026-08-09 蒸餾自 nova PR #1–#73 全部 review 意見(181 則 inline comments)、review-fix commits,以及 FW-211/212/215、FW-164 等工作項紀錄。出處標 PR 編號或 commit sha,皆可在 GitHub 覆核。**本檔是活文件**:重大 review 的 taste 層教訓(lint/gate 抓不到的命名、術語、註解、文件分層)持續追加 — 2026-08-20 自 PR #90 七輪可讀性重構補入 NAME-9~11、DOC-8~10;2026-08-27 自 FW-247 ECC 收帳 dual-review 四輪(`a6ab28d`)補入 FFI-7、GATE-11;2026-08-28 自同票上板補入 TEST-7;2026-09-03 自 PR #113 Eden review 補入 DOC-11;2026-09-21 自 PR #140 動工前 dual-review 補入 DOC-12;回收動作掛在 dual-review skill 的收尾步驟。
+**Origin**: 2026-08-09 蒸餾自 nova PR #1–#73 全部 review 意見(181 則 inline comments)、review-fix commits,以及 FW-211/212/215、FW-164 等工作項紀錄。出處標 PR 編號或 commit sha,皆可在 GitHub 覆核。**本檔是活文件**:重大 review 的 taste 層教訓(lint/gate 抓不到的命名、術語、註解、文件分層)持續追加 — 2026-08-20 自 PR #90 七輪可讀性重構補入 NAME-9~11、DOC-8~10;2026-08-27 自 FW-247 ECC 收帳 dual-review 四輪(`a6ab28d`)補入 FFI-7、GATE-11;2026-08-28 自同票上板補入 TEST-7;2026-09-03 自 PR #113 Eden review 補入 DOC-11;2026-09-21 自 PR #140 動工前 dual-review 補入 DOC-12;2026-09-22 自 PR #140 retry 設計的 dual-review 補入 TEST-8、DOC-2 補出處;回收動作掛在 dual-review skill 的收尾步驟。
 **Cross-references**: clean-code.md (CC1~CC14)、minimalism.md (MIN-1~6)、modularity.md (MOD-1~5)
 
 三份舊 canonical 檔管「函式怎麼寫」;本檔收 nova 實戰長出的新層:error 慣例、契約進碼、no_std 紀律、FFI/vendor 紀律、測試與建置關卡。條目按主題分組,ID 與 CC/MIN/MOD 不重疊。
@@ -263,8 +263,8 @@ FW-212 stack(PR #30~#37)的貫穿主題。在認證導向的 crate,「comments a
 
 ### DOC-2: 註解裡的技術宣稱要可覆核
 
-PR #32 self-review 抓到三處錯註解,最毒的一種:錯的「理由」會讓後人理直氣壯地刪掉必要程式碼(信了「cc 會發 rerun-if-changed」就會把手寫的追蹤迴圈當冗餘刪掉,換來靜默連舊 STL)。環境 / 工具能力的宣稱被實測推翻就立刻改(`f0a73b1`)。量化斷言分級:有自動關卡釘住的數字可寫死;沒有的必附量測條件、工具版本或日期。
-出處: PR #32、`f0a73b1`、pr32 註解修正。
+PR #32 self-review 抓到三處錯註解,最毒的一種:錯的「理由」會讓後人理直氣壯地刪掉必要程式碼(信了「cc 會發 rerun-if-changed」就會把手寫的追蹤迴圈當冗餘刪掉,換來靜默連舊 STL)。環境 / 工具能力的宣稱被實測推翻就立刻改(`f0a73b1`)。量化斷言分級:有自動關卡釘住的數字可寫死;沒有的必附量測條件、工具版本或日期。廠商手冊的數字也一樣:引用前先比對量測條件(ICache、TrustZone、時脈、wait states)跟產品是否一致,不一致就只能當參考,不能據以寫保證。PR #140 拿 UM3267 的 cycle 數推「最壞一步不變長」、「關中斷約 2 µs 可忽略」,事後才發現 ST 是在 ICache 開啟下量的,nova 根本沒開 ICACHE。
+出處: PR #32、`f0a73b1`、pr32 註解修正;PR #140 `b9975d3`、`d16bd32`(2026-09-22)。
 
 ### DOC-3: 註解與緊鄰程式碼矛盾必改寫
 
@@ -357,6 +357,11 @@ erase 後逐 byte blank-check(寫保護下 SE 無聲失效,WIP 照樣清);progra
 
 「讀旗標 = 0」在沒看過旗標 = 1 之前不是證據。FW-247 ECC 收帳寫完、四輪 review、Step 2 兩次 PASS,旗標從頭到尾乾淨——注錯做了五種變體也乾淨,直到 `DEIE` 開了才發現這顆晶片的 `MxISR` 只在 IE 開著時 latch,之前一整天的「乾淨」全是盲的,而且 `SEIE` 沒開時 SEC 校正照做、不吭聲。安全機制的驗收順序是:先造一個它該抓到的錯、看它抓到,才開始信它的 clean;板上做不到就至少寫進 runbook 當未驗項,不寫「PASS」。
 出處: PR #105 runbook Step 3 實機記錄(2026-08-28)。
+
+### TEST-8: 重做一個測試,要重現原本的存取樣式,不只位址範圍
+
+「重測同一段」直覺上是把起點設回出錯那一段,但測試函式看到的邊界會跟著變。STL 的 RAM March 在中間段會多碰前一個 word,子範圍的第一段不碰(`StlTmRamStandardOrder` 位移表,反組譯 `STL_Lib.a` 證實);從出錯那一段重新 Configure,它就變成子範圍的第一段,前一個 word 的耦合故障重測會通過、被原諒。重做之前先查清楚被測對象怎麼存取邊界,手冊查不到就反組譯,再重現原本的樣式,這裡是退一段、跨兩步。能用真故障驗的就用真故障驗(改壞 golden CRC);artificial failing 不管測的是哪一段,驗不出這一條。
+出處: PR #140 `be911f5`(FW-291 D14、F33,Codex 對抗審,2026-09-22)。
 
 ## GATE — 建置關卡與工具腳本
 
