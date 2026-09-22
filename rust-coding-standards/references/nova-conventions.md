@@ -363,6 +363,11 @@ erase 後逐 byte blank-check(寫保護下 SE 無聲失效,WIP 照樣清);progra
 「重測同一段」直覺上是把起點設回出錯那一段,但測試函式看到的邊界會跟著變。STL 的 RAM March 在中間段會多碰前一個 word,子範圍的第一段不碰(`StlTmRamStandardOrder` 位移表,反組譯 `STL_Lib.a` 證實);從出錯那一段重新 Configure,它就變成子範圍的第一段,前一個 word 的耦合故障重測會通過、被原諒。重做之前先查清楚被測對象怎麼存取邊界,手冊查不到就反組譯,再重現原本的樣式,這裡是退一段、跨兩步。能用真故障驗的就用真故障驗(改壞 golden CRC);artificial failing 不管測的是哪一段,驗不出這一條。
 出處: PR #140 `be911f5`(FW-291 D14、F33,Codex 對抗審,2026-09-22)。
 
+### TEST-9: 驗收情境的預期值要能分辨錯誤實作
+
+情境跑出「預期結果」，只證明正確實作會這樣；錯的實作若也跑出同樣結果，這個情境等於沒驗。FW-315 的 `Inject` 情境對 RAM 注入判錯，不論重測從哪一段開始，log 都一模一樣——Codex 對抗審才指出 RAM 重測起點在板上從沒被驗過。改法是補一個觀測值會隨錯誤實作改變的情境：`RamRestore` 看兩輪的收尾步號，正確是 R+2 / 2R+2，原地重測是 R+1，從區段開頭重來是 R+3，第二輪沿用舊起點是 2R+1。寫預期表時一併列出幾種常見錯誤實作各自會得到什麼；列不出差別，就是情境選錯了。
+出處: PR #151 `a6e234e`（FW-315 `RamRestore`，Codex 對抗審，2026-09-22；上板實測 1026 / 2050）。
+
 ## GATE — 建置關卡與工具腳本
 
 韌體交付物包含 bench 工具(Python / shell / justfile),它們與 Rust 同標準受 review。FW-215 五輪 review 全在這層。
@@ -380,7 +385,8 @@ erase 後逐 byte blank-check(寫保護下 SE 無聲失效,WIP 照樣清);progra
 ### GATE-3: FFI 正確性只有真連結能證明
 
 lib crate 的 check / clippy 不呼叫 linker — 拼錯的符號、走樣的 ABI 全部無感。CI 必須有真連結 bin 的關卡(`llvm-nm` 量 0 未解符號);每道關卡的涵蓋範圍要如實記載,type-check 關卡不得宣稱涵蓋連結。
-出處: FW-211(`check-h5-stl` 只 clippy 的教訓)。
+只宣告、沒人呼叫的 extern 不會產生未解符號，拼錯照樣連得過；連結關卡要建一支真的會呼叫它的 bin。
+出處: FW-211(`check-h5-stl` 只 clippy 的教訓);PR #151 `96a8a55`(`link-stl` 原本只建不碰 RT 的 `self_test_demo`,兩個新 DeInit extern 沒有任何關卡連結過)。
 
 ### GATE-4: cwd-scoped 建置設定是建置契約的一部分
 
