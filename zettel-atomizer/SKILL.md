@@ -1,6 +1,6 @@
 ---
 name: zettel-atomizer
-description: 把 vault 內以單一主題 tag 標記的素材聚合成 batch,萃取成原子筆記 + 結構筆記,直落 ~/Obsidian/Notes/ 永久區 (frontmatter 帶 source: ai-assisted)。使用者打 /zettel-atomize <tag> 觸發。
+description: "把 vault 內以單一主題 tag 標記的素材聚合成 batch,萃取成原子筆記 + 結構筆記,直落 ~/Obsidian/Notes/ 永久區 (frontmatter 帶 source: ai-assisted)。使用者打 /zettel-atomize <tag> 觸發。"
 ---
 
 # zettel-atomizer
