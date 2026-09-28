@@ -1,6 +1,6 @@
 ---
 name: zettel-atomizer
-description: "把 vault 內以單一主題 tag 標記的素材聚合成 batch,萃取成原子筆記 + 結構筆記,直落 ~/Obsidian/Notes/ 永久區 (frontmatter 帶 source: ai-assisted)。使用者打 /zettel-atomize <tag> 觸發。"
+description: "把 vault 內以單一主題 tag 標記的素材聚合成 batch,萃取成原子筆記 + 結構筆記,直落 ~/Obsidian/Notes/ 永久區 (frontmatter 帶 source: ai-assisted)。使用者打 /zettel-atomizer <tag> 觸發。"
 ---
 
 # zettel-atomizer
@@ -10,9 +10,9 @@ description: "把 vault 內以單一主題 tag 標記的素材聚合成 batch,�
 1. **原子筆記** — 每張一個概念、標題為陳述句、能精準 wikilink 引用
 2. **結構筆記** — 把同主題的原子筆記織成索引/論述網絡
 
-兩者皆直落 `Notes/` 永久區,frontmatter 帶 `source: ai-assisted` 標記來源 (2026-08-08 Obsidian 重定位後,inbox 暫存與人工核定升級流程退役)。
+兩者皆直落 `Notes/` 永久區,frontmatter 帶 `source: ai-assisted` 標記來源。
 
-完整設計脈絡見 `~/Projects/knowledge-os/docs/superpowers/specs/2026-05-02-zettel-atomizer-design.md` (歷史快照,落點為 inbox 的舊設計);重定位決策見 knowledge-os memory `obsidian-repositioning`。
+落點與流程的決策見 knowledge-os memory `obsidian-repositioning`。
 
 ## 設計原則
 
@@ -24,7 +24,7 @@ description: "把 vault 內以單一主題 tag 標記的素材聚合成 batch,�
 
 ## 觸發
 
-使用者打 `/zettel-atomize <tag>`,例如 `/zettel-atomize ebpf`。
+使用者打 `/zettel-atomizer <tag>`,例如 `/zettel-atomizer ebpf`。
 
 ## Phase 1: 聚合 + 載入上下文 (Auto-execute)
 
@@ -54,8 +54,6 @@ obsidian tag name=<tag> verbose | \
 - **batch ≤ 100 張** → 不切,全 batch 處理
 - **batch > 100 張 且 COVERAGE ≥ 80%** → 切法 C 一級 (依 source-whiteboard 切桶)
 - **batch > 100 張 且 COVERAGE < 80%** → 提示使用者選分群維度,預設不切
-
-特殊規則: tag = `rust` 額外觸發二級切分 (TRPL Part 1/2/3 章節再切一層)。
 
 ### 1.4 反查已處理素材 (idempotent)
 
@@ -229,8 +227,3 @@ python3 ~/Projects/knowledge-os/scripts/reindex_vault.py
 | `distill` Skill | Claude Code 對話 | 即時、單張原子洞見 | AI 直寫 + `source: ai-assisted` 標記,使用者事後抽查 |
 | **`zettel-atomizer`** | **vault 內既有素材** | **批次、多張原子 + 結構** | **同上** |
 | `vault-healthcheck` (規劃中) | vault 全域 | 健檢報告 | 唯讀,不寫筆記 |
-
-## Phase B/C 預留
-
-- **Phase B**: 跨 tag 聚合 (處理多 tag 主題交集) + 自動更新既有結構筆記 (diff 寫入)
-- **Phase C**: 自動觸發 + 多格式輸出 (簡報、圖表)

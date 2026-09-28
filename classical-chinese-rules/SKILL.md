@@ -5,7 +5,7 @@ description: Use when reviewing, critiquing, or polishing Traditional Chinese pr
 
 # Classical Chinese Grammar Rules — 思果《翻譯研究》
 
-Canonical literature note (464 lines, covering p.14–156) ships inside this skill's repo:
+Canonical literature note (covering p.14–156) ships inside this skill's repo:
 
 `~/.claude/skills/classical-chinese-rules/references/翻譯研究筆記.md`
 
@@ -53,7 +53,7 @@ When fired, follow this procedure:
 
 ## Relationship to the Concise Traditional Chinese output style
 
-The output style at `~/.claude/output-styles/concise-tw.md` includes a condensed 14-rule version of 思果 as "always-on" hot path. This skill provides the full 461-line reference for:
+The output style at `~/.claude/output-styles/concise-tw.md` includes a condensed 14-rule version of 思果 as "always-on" hot path. This skill provides the full reference for:
 
 - Deep polishing passes (`/classical-chinese-rules` or the user asking for 校稿/修稿/潤稿)
 - Rules outside the 14-rule hot path (十條「的」字細則、代名詞使用、節奏平仄、副詞位置 etc.)

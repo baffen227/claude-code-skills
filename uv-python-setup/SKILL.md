@@ -9,49 +9,11 @@ Initialize a Python development environment using uv in the current repository.
 
 ## Phase 1: Core (Auto-execute)
 
-Run all steps in this phase automatically without asking the user.
+Run this phase without asking the user.
 
-### 1. Ensure uv is installed
-
-Check if `uv` is available:
-
-```bash
-which uv
-```
-
-If not found, install it:
-
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-```
-
-After installation, verify it succeeded:
-
-```bash
-uv --version
-```
-
-### 2. Initialize project
-
-Check if `pyproject.toml` exists in the repository root. If it does not exist, run:
-
-```bash
-uv init
-```
-
-### 3. Create project directories
-
-Create `scripts/` directory if it does not exist:
-
-```bash
-mkdir -p scripts/
-```
-
-Create `tests/` directory if it does not exist:
-
-```bash
-mkdir -p tests/
-```
+1. Make sure `uv` is on PATH; if it is missing, install it with `curl -LsSf https://astral.sh/uv/install.sh | sh` and confirm with `uv --version`.
+2. If the repository root has no `pyproject.toml`, run `uv init`.
+3. Create `scripts/` and `tests/` if they do not exist.
 
 ### 4. Update CLAUDE.md with Python conventions
 

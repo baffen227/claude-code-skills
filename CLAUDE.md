@@ -24,13 +24,10 @@ skill-name/
 
 **Skills** — 在 `~/.claude/skills/` 建立 symlink 指向此 repo 的各 skill 目錄 (dir 層級):
 ```
-~/.claude/skills/uv-python-setup → ~/Projects/claude-code-skills/uv-python-setup
-~/.claude/skills/classical-chinese-rules → ~/Projects/claude-code-skills/classical-chinese-rules
-~/.claude/skills/distill → ~/Projects/claude-code-skills/distill
-~/.claude/skills/zettel-atomizer → ~/Projects/claude-code-skills/zettel-atomizer
-~/.claude/skills/rust-coding-standards → ~/Projects/claude-code-skills/rust-coding-standards
-~/.claude/skills/dual-review → ~/Projects/claude-code-skills/dual-review
+~/.claude/skills/<skill-name> → ~/Projects/claude-code-skills/<skill-name>
 ```
+
+受管理的 skill 清單以 `setup.sh` 的 `SKILLS` 陣列為準。
 
 **Output styles** — 在 `~/.claude/output-styles/` 建立 symlink 指向特定檔案 (file 層級):
 ```
@@ -58,5 +55,5 @@ skill-name/
 ## Language
 
 - 技術文件: 中英混合
-- SKILL.md: English (Claude Code 消費)
+- SKILL.md: 英文為主 (Claude Code 消費);服務繁中寫作的 skill (`distill`、`zettel-atomizer`) 用繁中
 - README.md: Traditional Chinese (人類閱讀)

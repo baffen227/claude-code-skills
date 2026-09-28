@@ -34,14 +34,13 @@ git diff --stat   # summary
 
 ### 3.1 Spawn Agent B
 
-使用 Agent tool，subagent_type: `superpowers:code-reviewer`。
+使用 Agent tool，subagent_type: `pr-review-toolkit:code-reviewer`。
 
 Prompt:
 
 ```
-You are a strict code reviewer for a safety-critical embedded Rust project.
-Project: STM32H563 Master Board CAN bus integration testing.
-Safety: IEC 60730-1 Annex H Class B.
+You are a strict code reviewer.
+Project context: {project_context}
 
 Read these coding standards before reviewing:
 - ~/.claude/skills/rust-coding-standards/references/clean-code.md
@@ -49,11 +48,11 @@ Read these coding standards before reviewing:
 - ~/.claude/skills/rust-coding-standards/references/modularity.md
 - ~/.claude/skills/rust-coding-standards/references/nova-conventions.md
 - ~/.claude/skills/rust-coding-standards/references/team-embedded-guideline.md
-  (team-level; READ ITS HEADER CONFLICT NOTES FIRST — the project CLAUDE.md
+  (team-level; read its header conflict notes first — the project CLAUDE.md
   red lines and co-design boundaries override it; its §B8 checklist applies,
-  but do NOT flag existing code for not matching its target-state layout)
+  but existing code is not a finding just for differing from its target-state layout)
 
-Review the following changes against ALL rules in those documents.
+Review the following changes against the rules in those documents.
 
 Additionally run a FRESH-READER pass (nova-conventions DOC-10): assume you
 have NOT read any design spec, have no issue-tracker access, and no chip
@@ -78,9 +77,9 @@ Output format:
 | # | File:Line | Rule | P | Issue | Suggested Fix |
 ```
 
-Replace `{git_diff}` with diff output, `{file_list}` with changed file list.
-(Coding standards moved to the rust-coding-standards skill 2026-05-20; the
-old `{project_root}/docs/coding-standards/` path is gone.)
+Replace `{git_diff}` with diff output, `{file_list}` with changed file list, and
+`{project_context}` with the project name, target hardware, and safety class taken
+from the repo `CLAUDE.md` (write `none stated` if it gives none).
 
 ### 3.2 Evaluate Findings
 
@@ -119,8 +118,8 @@ old `{project_root}/docs/coding-standards/` path is gone.)
 在 context 中加入 adversarial focus:
 
 > Focus on finding blind spots that the implementation author and Agent B reviewer
-> may have BOTH missed. Look for: implicit assumptions, edge cases in CAN protocol
-> handling, CRC scope errors, timeout logic, startup race conditions.
+> may have both missed. Look for: implicit assumptions, protocol edge cases,
+> timeout logic, startup race conditions, and the risk areas the repo CLAUDE.md names.
 
 **Codex 空輸出/未收完**: 改有界重試——最多 3 次 re-poll，每次遵守既有 codex 安全規則: 指令帶 `timeout 120`，超過 30 秒無輸出即視為卡住並終止 (規則出處: knowledge-os CLAUDE.md「Codex CLI 安全注意事項」，OOM 事故換來的)。3 次仍無輸出就停，回報「Codex 無輸出」，交使用者裁決重跑或跳過。禁止無上限輪詢。
 

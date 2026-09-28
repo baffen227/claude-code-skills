@@ -9,12 +9,12 @@ description: 在 Claude Code 對話中萃取核心知識洞見，產出符合 St
 
 設計原則:
 
-1. **來源透明** — 筆記 frontmatter 帶 `source: ai-assisted`，AI 產出與人工筆記可隨時區分（2026-08-08 Obsidian 重定位後，inbox 暫存與人工核定升級流程退役，改直落永久區）
+1. **來源透明** — 筆記 frontmatter 帶 `source: ai-assisted`，AI 產出與人工筆記可隨時區分
 2. **單一原子洞見優先** — 預設輸出一張原子筆記，標題為陳述句
 3. **校稿不可繞過** — 寫入前過 classical-chinese-rules 思果校稿（Phase 3.5），不讓翻譯腔進 vault
 4. **與 auto memory 區隔** — memory 記「我怎麼工作」(程序記憶)，distill 記「我學到什麼」(宣告知識)
 
-完整設計脈絡見 `~/Projects/knowledge-os/docs/superpowers/specs/2026-04-20-distill-skill-design.md`（歷史快照，落點為 inbox 的舊設計）；重定位決策見 knowledge-os memory `obsidian-repositioning`。
+落點與流程的決策見 knowledge-os memory `obsidian-repositioning`。
 
 ## 觸發
 
@@ -66,7 +66,7 @@ description: 在 Claude Code 對話中萃取核心知識洞見，產出符合 St
 **Properties 必填欄位** (照模板):
 
 - `created`、`session-date` — 用今日 ISO 8601 日期
-- `model` — 當前 model ID (例: `claude-opus-4-7`)
+- `model` — 執行本 session 的 model ID (照 system prompt 所列，不要沿用舊例)
 - `source: ai-assisted`、`status: permanent` — 寫死，不變
 - `tags` — 從 vault 既有主題 tag 挑 1 個最貼切的 (讀 `~/Obsidian/Notes/INDEX.md` 的組名清單當 taxonomy；不確定就挑最接近的，不發明新 tag)
 
@@ -118,9 +118,3 @@ EOF
 | `knowledge-os` CLAUDE.md | 環境、決策歷史 | 跨 session 共用大腦 | 人工編輯 |
 | **`distill` Skill** | **知識洞見** | **直落 Obsidian vault 永久區** | **AI 寫入 + `source: ai-assisted` 標記，使用者事後抽查** |
 | `zettel-atomizer` | 文獻原子化 | vault 內既有素材 → 永久筆記 | 同上 |
-
-## Phase B/C 預留
-
-- **Phase B**: 自動觸發 (SessionStop hook) + 多洞見一次拆多張原子筆記
-- **Phase C**: 跨 session 累積分析 (與 `vault-healthcheck` 整合，找反覆出現的模式)
-- **Obsidian CLI 整合**: `write-draft.sh` 偵測 `obsidian` 在 PATH 後優先用 CLI，否則回到目前的直寫

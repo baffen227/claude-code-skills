@@ -9,7 +9,7 @@
 | [uv-python-setup](./uv-python-setup/) | 在任何倉庫初始化 Python uv 開發環境 | 「初始化 Python 環境」、「設定 uv」、「setup python」 |
 | [classical-chinese-rules](./classical-chinese-rules/) | 依思果《翻譯研究》對繁體中文 prose 做深度潤稿，對抗歐化中文 | 「校稿」、「修稿」、「潤稿」、「中文潤稿」、「改得更像中文」、「歐化」、「思果」 |
 | [distill](./distill/) | 從 Claude Code 對話萃取核心洞見，寫成 Steph Ango 筆記法的原子筆記直落 `Notes/` 永久區 | `/distill`、「distill 對話」、「把這段對話的洞見寫進 vault」 |
-| [zettel-atomizer](./zettel-atomizer/) | 把 vault 內單一主題 tag 的素材聚合成 batch，萃取成原子筆記 + 結構筆記直落 `Notes/` 永久區 | `/zettel-atomize <tag>` |
+| [zettel-atomizer](./zettel-atomizer/) | 把 vault 內單一主題 tag 的素材聚合成 batch，萃取成原子筆記 + 結構筆記直落 `Notes/` 永久區 | `/zettel-atomizer <tag>` |
 | [rust-coding-standards](./rust-coding-standards/) | 審查或撰寫 BTBU 韌體 Rust 時載入完整的 clean-code / minimalism / modularity 紀律 | 「review Rust」、CLAUDE.md red-line 引用 clean-code / minimalism / modularity |
 | [dual-review](./dual-review/) | 實作完成後的雙重品質審查：先 Agent B（Claude subagent）再 Codex 對抗審查 | `/dual-review`、程式碼改動後 |
 | [wrapup](./wrapup/) | session 收尾儀式一鍵化：多 repo commit/push、逐項報 gate exit code、ClickUp 更新、產出經機器驗證閘的下次交接 prompt | `/wrapup`、「收尾」、「wrap up」 |
@@ -199,7 +199,7 @@ distill/
 
 把 vault 內以單一主題 tag 標記的素材聚合成 batch，萃取成原子筆記 + 結構筆記，直落 `~/Obsidian/Notes/` 永久區（frontmatter 帶 `source: ai-assisted` 標記來源）。
 
-**觸發**：`/zettel-atomize <tag>`。
+**觸發**：`/zettel-atomizer <tag>`。
 
 **現況**：選 batch 的第一順位仍是「使用者能否抽查」——不熟的主題就算規模剛好也先擱著，因為沒人能判斷對錯的 batch 比沒跑更糟。2026-08-08 Obsidian 重定位後筆記直落永久區，品質關卡是寫入前的思果校稿（Phase 4.5），事後抽查取代逐張核定。
 
