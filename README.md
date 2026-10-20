@@ -14,6 +14,7 @@
 | [dual-review](./dual-review/) | 實作完成後的雙重品質審查：先 Agent B（Claude subagent）再 Codex 對抗審查 | `/dual-review`、程式碼改動後 |
 | [wrapup](./wrapup/) | session 收尾儀式一鍵化：多 repo commit/push、逐項報 gate exit code、ClickUp 更新、產出經機器驗證閘的下次交接 prompt | `/wrapup`、「收尾」、「wrap up」 |
 | [decide](./decide/) | 把 session 裡等使用者拍板的事逐項問完：一次一題，答完就照做並回報改了哪裡，最後一張表收尾 | `/decide`、「逐項來看要決定的事情」、「逐項決定」 |
+| [open-session](./open-session/) | 從 Claude Code session 用 Herdr 開新 tab，起另一個 Claude Code session 並送出開場 | `/open-session`、「開新 session」 |
 
 ## 快速安裝
 
@@ -291,6 +292,23 @@ wrapup/
 ```
 decide/
 └── SKILL.md                 # 收集待決事項 → 逐項問 → 照做回報 → 收尾表
+```
+
+---
+
+### open-session
+
+從一個 Claude Code session 用 Herdr 開新 tab，起另一個 Claude Code session，改名後送出開場。只管開 session 這一段：開場寫什麼由呼叫端決定，skill 只附一份提醒清單（票與計畫、這個 session 做什麼、規矩、收尾回報給誰），不附範本。之後跟新 session 往來、關 tab，都不在範圍內。
+
+建在 Herdr 自己的 skill（`herdr --skill`）上，CLI 語法不重抄，只記使用者的慣例與踩過的坑：開新 tab 不分割視窗；第一次進資料夾的信任確認交給使用者選；`/rename` 回 `agent_prompt_stalled`、開場 `--wait` 逾時都屬正常；送開場前先讀畫面，輸入框有草稿就問使用者；送完讀回畫面確認到齊、狀態是 `working` 才回報。
+
+**觸發**：`/open-session`、「開新 session」。需在 Herdr 裡執行（`HERDR_ENV=1`）。
+
+**檔案結構**
+
+```
+open-session/
+└── SKILL.md                 # 開 tab → 起 Claude → 改名 → 送開場 → 讀回確認
 ```
 
 ---
