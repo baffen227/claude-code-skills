@@ -15,7 +15,7 @@ OUTPUT_STYLES_DIR="$HOME/.claude/output-styles"
 mkdir -p "$SKILLS_DIR" "$OUTPUT_STYLES_DIR"
 
 # distill / zettel-atomizer paused with the Obsidian experiment (2026-10-17); add back to re-enable
-SKILLS=(uv-python-setup classical-chinese-rules rust-coding-standards dual-review wrapup)
+SKILLS=(uv-python-setup classical-chinese-rules rust-coding-standards dual-review wrapup decide)
 
 # Output styles managed by this repo. Format: <repo-relative-source>:<filename-in-output-styles-dir>
 OUTPUT_STYLES=(

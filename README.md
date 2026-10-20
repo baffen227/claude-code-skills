@@ -13,6 +13,7 @@
 | [rust-coding-standards](./rust-coding-standards/) | 審查或撰寫 BTBU 韌體 Rust 時載入完整的 clean-code / minimalism / modularity 紀律 | 「review Rust」、CLAUDE.md red-line 引用 clean-code / minimalism / modularity |
 | [dual-review](./dual-review/) | 實作完成後的雙重品質審查：先 Agent B（Claude subagent）再 Codex 對抗審查 | `/dual-review`、程式碼改動後 |
 | [wrapup](./wrapup/) | session 收尾儀式一鍵化：多 repo commit/push、逐項報 gate exit code、ClickUp 更新、產出經機器驗證閘的下次交接 prompt | `/wrapup`、「收尾」、「wrap up」 |
+| [decide](./decide/) | 把 session 裡等使用者拍板的事逐項問完：一次一題，答完就照做並回報改了哪裡，最後一張表收尾 | `/decide`、「逐項來看要決定的事情」、「逐項決定」 |
 
 ## 快速安裝
 
@@ -273,6 +274,23 @@ wrapup/
 ├── SKILL.md                     # 收尾流程 + 交接驗證閘 + degrade 規則
 └── scripts/
     └── verify-handoff.sh        # 機器驗證出站閘（三要件檢查）
+```
+
+---
+
+### decide
+
+把 session 裡還在等使用者拍板的事逐項問完。先找上一輪回覆留下的，沒有就往前找整場 session 沒結的。每次用 AskUserQuestion 只問一項：推薦選項放第一個，每個選項附一句理由。答完當場照做（寫檔、日曆、ClickUp、Notion、memory），一行回報改了哪裡，再問下一項。問完用一張表收尾，列項目、決定、改了哪裡，沒處理完的另列。
+
+寄信、刪除、push、公開留言這類不可逆或對外的動作，選項本身要寫明；使用者選了就算同意，不再確認第二次。選項沒寫到的動作才另外問。能不能直接寫入，照各 repo 的 CLAUDE.md。
+
+**觸發**：`/decide`、「逐項來看要決定的事情」、「逐項決定」。
+
+**檔案結構**
+
+```
+decide/
+└── SKILL.md                 # 收集待決事項 → 逐項問 → 照做回報 → 收尾表
 ```
 
 ---
