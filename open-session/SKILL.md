@@ -38,9 +38,12 @@ Out of scope: talking to the new session afterwards (use SendMessage), closing t
 7. **Send the opening.** Write a long opening to a file in your scratchpad first, then
    `herdr agent prompt <name> "$(cat <file>)"`. `--wait` with a timeout will time out
    because the new session is `working` — that is expected, not a failure.
-8. **Confirm and report.** Read the screen again: the full opening arrived and the state is
-   `working`. Then report to the user: tab label and id, working directory, session name,
-   opening file path.
+8. **Confirm and report.** Read the screen again with `herdr agent read <name> --source visible`:
+   the full opening arrived and the state is `working`. Do not use the default `--source recent`
+   or `recent-unwrapped` with `--lines` here — while the session is `working` they return
+   `agent_not_idle` (scrollback can only be captured while idle). That error is expected, not a
+   failure; do not resend the opening. Then report to the user: tab label and id, working
+   directory, session name, opening file path.
 
 ## Opening checklist (reminder, not a template)
 
@@ -57,5 +60,8 @@ An opening usually covers:
 - Answering the trust prompt for the user.
 - Treating `agent_prompt_stalled` after `/rename`, or a `--wait` timeout after the opening,
   as failure and retrying — this sends the text twice.
+- Reading the screen back with `--source recent` / `recent-unwrapped` while the new session is
+  `working`, then taking `agent_not_idle` as a failed send and resending the opening. Use
+  `--source visible`.
 - Sending the opening without reading the input box first.
 - Reporting done before reading the screen back.
