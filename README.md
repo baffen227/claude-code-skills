@@ -15,6 +15,7 @@
 | [wrapup](./wrapup/) | session 收尾儀式一鍵化：多 repo commit/push、逐項報 gate exit code、ClickUp 更新、產出經機器驗證閘的下次交接 prompt | `/wrapup`、「收尾」、「wrap up」 |
 | [decide](./decide/) | 把 session 裡等使用者拍板的事逐項問完：一次一題，答完就照做並回報改了哪裡，最後一張表收尾 | `/decide`、「逐項來看要決定的事情」、「逐項決定」 |
 | [open-session](./open-session/) | 從 Claude Code session 用 Herdr 開新 tab，起另一個 Claude Code session 並送出開場 | `/open-session`、「開新 session」 |
+| [execute-inbox](./execute-inbox/) | 執行 dispatcher 調度員派來的任務單，回報寫到 `~/dispatch/outbox/` | `/execute-inbox <id>`、「請用 execute-inbox 執行 <id>」 |
 
 ## 快速安裝
 
@@ -309,6 +310,23 @@ decide/
 ```
 open-session/
 └── SKILL.md                 # 開 tab → 起 Claude → 改名 → 送開場 → 讀回確認
+```
+
+---
+
+### execute-inbox
+
+執行 dispatcher 調度員派來的任務單：讀 `~/dispatch/inbox/<id>.md`，照做，回報寫到 `~/dispatch/outbox/<id>.md`，最後一行是 STATUS。改檔案的任務開 worktree 與分支 `exp/<id>`，只 commit，不 merge、不 push。
+
+這是執行時的精簡版，完整協定在 `btbu_tasks_tracker` repo 的 `docs/dispatch-protocol.md`。
+
+**觸發**：`/execute-inbox <id>`、「請用 execute-inbox 執行 <id>」。
+
+**檔案結構**
+
+```
+execute-inbox/
+└── SKILL.md                 # 讀任務單 → 照做 → 寫回報與 STATUS
 ```
 
 ---
